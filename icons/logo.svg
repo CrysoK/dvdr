@@ -1,0 +1,11 @@
+<svg class="app-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-label="Logo DVDr">
+  <!-- Fondo: cuadrado redondeado (azul oscuro) -->
+  <rect width="100" height="100" rx="22" fill="#274768"/>
+  <!-- Anillo exterior (menta) -->
+  <circle cx="50" cy="50" r="32" stroke="#91dbc0" stroke-width="6" fill="none" />
+  <!-- Signo de división (menta) -->
+  <circle cx="50" cy="33" r="5" fill="#91dbc0" />
+  <rect x="32" y="47" width="36" height="6" rx="3" fill="#91dbc0" />
+  <circle cx="50" cy="67" r="5" fill="#91dbc0" />
+</svg>
+                    

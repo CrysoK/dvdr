@@ -1,19 +1,21 @@
 :root {
-  --primary-color: #007aff;
-  --primary-light: #e5f1ff;
-  --success-color: #34c759;
-  --danger-color: #ff3b30;
-  --warning-color: #ff9500;
+  --brand-blue: #274768;
+  --brand-mint: #91dbc0;
+  --primary-color: var(--brand-blue);
+  --primary-light: #d1f0e4;
+  --success-color: #2e7d56;
+  --danger-color: #d64045;
+  --warning-color: #e89828;
   --secondary-color: #6c757d;
-  --bg-color: #f8f9fa;
+  --bg-color: #f4f7f6;
   --card-bg: #ffffff;
-  --text-color: #212529;
-  --text-muted: #6c757d;
-  --border-color: #dee2e6;
+  --text-color: #274768;
+  --text-muted: #5f7d96;
+  --border-color: #cce3de;
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --border-radius: 0.5rem;
-  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --icon-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  --border-radius: 0.75rem;
+  --box-shadow: 0 4px 20px rgba(39, 71, 104, 0.08);
+  --icon-shadow: none;
 }
 
 body {
@@ -41,18 +43,19 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
-.header h1 span {
-  font-size: 2.2rem;
-  text-shadow: var(--icon-shadow);
+.app-logo {
+  width: 64px;
+  height: 64px;
+  filter: drop-shadow(0 4px 6px rgba(39, 71, 104, 0.2));
 }
 
 .header p {
   font-size: 1.1rem;
   color: var(--text-muted);
-  margin-top: -0.5rem;
+  margin-top: 0.5rem;
 }
 
 .main-grid {
@@ -80,7 +83,7 @@ body {
   border-radius: var(--border-radius);
   padding: 1.5em;
   box-shadow: var(--box-shadow);
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(145, 219, 192, 0.3);
 }
 
 .card-header {
@@ -141,8 +144,8 @@ select {
 input:focus,
 select:focus {
   outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px var(--primary-light);
+  border-color: var(--brand-blue);
+  box-shadow: 0 0 0 3px var(--brand-mint);
 }
 
 button {
@@ -171,7 +174,14 @@ button.warning {
 }
 
 button.secondary {
-  background-color: var(--secondary-color);
+  background-color: white;
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+}
+
+button.secondary:hover {
+  background-color: var(--primary-light);
+  border-color: var(--brand-mint);
 }
 
 .people-list-container {
@@ -191,8 +201,9 @@ button.secondary {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background-color: var(--bg-color);
-  border: 1px solid var(--border-color);
+  color: var(--primary-color);
+  background-color: white;
+  border: 1px solid var(--brand-mint);
   padding: 0.5rem 0.75rem;
   border-radius: 999px;
   font-weight: 500;
@@ -297,13 +308,21 @@ button.secondary {
   /* Oculta el texto que se desborda */
   text-overflow: ellipsis;
   /* Muestra "..." en el texto oculto */
+  color: var(--text-muted);
+  background-color: white;
+}
+
+.participant-item label:hover {
+  border-color: var(--brand-mint);
+  background-color: #f8f9fa;
 }
 
 .participant-item input:checked+label {
-  background-color: var(--primary-color);
-  color: white;
+  background-color: var(--primary-light);
+  color: var(--primary-color);
   border-color: var(--primary-color);
-  font-weight: 500;
+  font-weight: 600;
+  box-shadow: 0 0 0 1px var(--primary-color);
 }
 
 .visually-hidden {
@@ -466,7 +485,8 @@ details[open] summary::after {
 .empty-state {
   color: var(--text-muted);
   text-align: center;
-  padding: 1rem 0;
+  padding: 0;
+  margin: 0;
 }
 
 .form-actions {
@@ -584,4 +604,30 @@ footer {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
+}
+
+.empty-state-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.5rem 0;
+}
+
+.demo-btn {
+  background-color: var(--bg-color);
+  color: var(--primary-color);
+  font-size: 0.9em;
+  padding: 0.5em 1em;
+  border: 1px dashed var(--primary-color);
+  width: 100%;
+  max-width: 200px;
+}
+
+.demo-btn:hover {
+  background-color: var(--primary-light);
+  border-style: solid;
+  color: var(--primary-color);
 }

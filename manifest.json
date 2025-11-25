@@ -1,0 +1,23 @@
+{
+  "name": "DVDr - Calculadora de gastos compartidos",
+  "short_name": "DVDr",
+  "description": "DVDr es una herramienta web simple y gratuita para calcular y dividir gastos compartidos.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#91dbc0",
+  "theme_color": "#274768",
+  "icons": [
+    {
+      "src": "icons/icon-maskable-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon-maskable-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
+    }
+  ]
+}

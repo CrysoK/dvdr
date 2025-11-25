@@ -1,5 +1,5 @@
 function app() {
-  const APP_VERSION = '1.1.0';
+  const APP_VERSION = '1.2.1';
   const STORAGE_KEY = 'dvd_data';
 
   const MIGRATIONS = {
@@ -124,7 +124,84 @@ function app() {
         }
       });
     },
-
+    loadDemoData() {
+      const load = () => {
+        const baseTime = Date.now();
+        // 1. Personas
+        this.people = ['Ana', 'Beto', 'Carla', 'Dani'];
+        // 2. Transacciones variadas para mostrar todas las funciones
+        this.transactions = [
+          {
+            id: baseTime,
+            type: 'expense',
+            description: 'Supermercado y comida',
+            amount: 15600.00,
+            payer: 'Ana',
+            shares: [
+              { person: 'Ana', amount: 3900 },
+              { person: 'Beto', amount: 3900 },
+              { person: 'Carla', amount: 3900 },
+              { person: 'Dani', amount: 3900 }
+            ]
+          },
+          {
+            id: baseTime + 1,
+            type: 'expense',
+            description: 'Alquiler de la cabaña',
+            amount: 40000.00,
+            payer: 'Beto',
+            shares: [
+              { person: 'Ana', amount: 10000 },
+              { person: 'Beto', amount: 10000 },
+              { person: 'Carla', amount: 10000 },
+              { person: 'Dani', amount: 10000 }
+            ]
+          },
+          {
+            id: baseTime + 2,
+            type: 'expense',
+            description: 'Bebidas (Dani no tomó)',
+            amount: 4500.00,
+            payer: 'Carla',
+            shares: [
+              { person: 'Ana', amount: 1500 },
+              { person: 'Beto', amount: 1500 },
+              { person: 'Carla', amount: 1500 }
+            ]
+          },
+          {
+            id: baseTime + 3,
+            type: 'adjustment',
+            description: 'Ana rompió un vaso (pagan todos)',
+            amount: 1200.00,
+            beneficiary: 'Beto', // Beto lo pagó o es el dueño
+            contributors: ['Ana', 'Beto', 'Carla', 'Dani']
+          },
+          {
+            id: baseTime + 4,
+            type: 'transfer',
+            description: 'Transferencia parcial',
+            from: 'Dani',
+            to: 'Beto',
+            amount: 5000.00
+          }
+        ];
+        this.newHistoryName = '';
+        this.cancelEditTransaction();
+        this.saveData();
+        this.addNotification('⚡ Datos de demostración cargados.', 'success');
+      };
+      if (this.people.length > 0 || this.transactions.length > 0) {
+        this.askConfirm({
+          title: 'Cargar demostración',
+          message: 'Esto reemplazará tus datos actuales de la sesión. ¿Deseas continuar?',
+          confirmText: 'Cargar Demo',
+          onConfirm: load
+        });
+      } else {
+        load();
+      }
+    },
     // --- MÉTODOS DE HISTORIAL ---
     saveToHistory() {
       const name = this.newHistoryName.trim();
