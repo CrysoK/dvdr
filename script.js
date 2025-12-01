@@ -1,5 +1,5 @@
 function app() {
-  const APP_VERSION = '1.2.1';
+  const APP_VERSION = '1.3.0';
   const STORAGE_KEY = 'dvd_data';
 
   const MIGRATIONS = {
@@ -34,6 +34,12 @@ function app() {
     newHistoryName: '',
     activeTab: 'expense',
     notifications: [],
+    changelog: {
+      show: false,
+      loading: false,
+      error: false,
+      data: []
+    },
     confirmation: {
       show: false, title: '', message: '', onConfirm: () => { }, onCancel: () => { }, confirmText: 'Confirmar', cancelText: 'Cancelar', confirmClass: 'primary'
     },
@@ -85,7 +91,10 @@ function app() {
       if (data) {
         if (data.version.localeCompare(this.version, undefined, { numeric: true }) < 0) {
           data = runMigrations(data);
-          this.addNotification('Tus datos se han actualizado a la nueva versión.', 'info', 5000);
+          this.addNotification(`¡DVDr actualizado a v${this.version}!`, 'success', 4000);
+          setTimeout(() => {
+            this.openChangelog();
+          }, 500);
         }
         this.people = data.people || [];
         this.transactions = data.transactions || [];
@@ -381,6 +390,54 @@ function app() {
       else if (formName === 'transferForm') this.transferForm = { from: '', to: '', amount: null };
     },
 
+    async openChangelog() {
+      this.changelog.show = true;
+      // Si ya tenemos datos en memoria, no volver a pedir
+      if (this.changelog.data.length > 0) return;
+      this.changelog.loading = true;
+      this.changelog.error = false;
+      try {
+        // Intentar obtener de sessionStorage primero
+        const cached = sessionStorage.getItem('dvdr_releases');
+        if (cached) {
+          this.changelog.data = JSON.parse(cached);
+          this.changelog.loading = false;
+          return;
+        }
+        const response = await fetch('https://api.github.com/repos/CrysoK/DVDr/releases');
+        if (!response.ok) throw new Error('Error al cargar releases');
+        const data = await response.json();
+        // Formatear datos para visualización simple
+        this.changelog.data = data.map(release => ({
+          tag: release.tag_name,
+          date: new Date(release.published_at).toLocaleDateString(),
+          name: release.name || release.tag_name,
+          body: this.formatReleaseBody(release.body)
+        }));
+        sessionStorage.setItem('dvdr_releases', JSON.stringify(this.changelog.data));
+      } catch (e) {
+        console.error(e);
+        this.changelog.error = true;
+      } finally {
+        this.changelog.loading = false;
+      }
+    },
+    formatReleaseBody(markdown) {
+      if (!markdown) return '';
+      // Limpieza básica de Markdown para HTML seguro
+      let html = markdown
+        .replace(/### (.*)/g, '<strong>$1</strong>') // Headers h3
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+        .replace(/`([^`]+)`/g, '<code>$1</code>') // Code inline
+        .replace(/- (.*)/g, '• $1') // List items
+        .replace(/\r\n/g, '<br>') // Line breaks
+        .replace(/\n/g, '<br>'); // Line breaks
+      return html;
+    },
+    closeChangelog() {
+      this.changelog.show = false;
+    },
+
     // --- GETTERS (CÁLCULOS) ---
     get balances() {
       const balances = Object.fromEntries(this.people.map(p => [p, 0]));
@@ -388,7 +445,7 @@ function app() {
         switch (tx.type) {
           case 'expense': balances[tx.payer] += tx.amount; tx.shares.forEach(share => { balances[share.person] -= share.amount; }); break;
           case 'adjustment': balances[tx.beneficiary] += tx.amount; const costPer = tx.amount / tx.contributors.length; tx.contributors.forEach(c => { balances[c] -= costPer; }); break;
-          case 'transfer': balances[tx.from] -= tx.amount; balances[tx.to] += tx.amount; break;
+          case 'transfer': balances[tx.from] += tx.amount; balances[tx.to] -= tx.amount; break;
         }
       });
       return balances;

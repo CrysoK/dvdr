@@ -15,14 +15,16 @@
         <meta property="og:type" content="website">
         <meta property="og:url" content="https://dvdr.vercel.app/">
         <meta property="og:title" content="DVDr - Dividí gastos, no amistades">
-        <meta property="og:description" content="Calculadora gratuita para dividir gastos compartidos en viajes y juntadas. Sin registro, simple y rápida.">
+        <meta property="og:description"
+            content="Calculadora gratuita para dividir gastos compartidos en viajes y juntadas. Sin registro, simple y rápida.">
         <meta property="og:image" content="https://dvdr.vercel.app/og-image.png">
         <meta property="og:image:width" content="1200">
         <meta property="og:image:height" content="630">
         <!-- Twitter -->
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:title" content="DVDr - Calculadora de gastos compartidos">
-        <meta name="twitter:description" content="Olvídate de las cuentas complicadas. Registra gastos y salda deudas fácilmente.">
+        <meta name="twitter:description"
+            content="Olvídate de las cuentas complicadas. Registra gastos y salda deudas fácilmente.">
         <meta name="twitter:image" content="https://dvdr.vercel.app/og-image.png">
         <title>DVDr - Calculadora de gastos compartidos</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,8 +44,9 @@
         <div class="container">
             <header class="header">
                 <h1>
-                    <svg class="app-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-label="Logo DVDr">
-                        <rect width="100" height="100" rx="22" fill="#274768"/>
+                    <svg class="app-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"
+                        aria-label="Logo DVDr">
+                        <rect width="100" height="100" rx="22" fill="#274768" />
                         <circle cx="50" cy="50" r="32" stroke="#91dbc0" stroke-width="6" fill="none" />
                         <circle cx="50" cy="33" r="5" fill="#91dbc0" />
                         <rect x="32" y="47" width="36" height="6" rx="3" fill="#91dbc0" />
@@ -387,7 +390,10 @@
             </div>
 
             <footer>
-                <p>DVDr v<span x-text="version"></span></p>
+                <p>
+                    DVDr v<span x-text="version"></span> •
+                    <button @click="openChangelog" class="link-btn">Novedades</button>
+                </p>
             </footer>
         </div>
 
@@ -403,6 +409,40 @@
                     <button @click="removeNotification(notification.id)" title="Cerrar">&times;</button>
                 </div>
             </template>
+        </div>
+
+        <!-- MODAL CHANGELOG -->
+        <div class="modal-overlay" x-show="changelog.show" x-cloak x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0" x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-end="opacity-0">
+            <div class="modal-box modal-wide" @click.outside="closeChangelog()"
+                x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95"
+                x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0 scale-95">
+                <div class="modal-header">
+                    <h3 class="modal-title">Novedades</h3>
+                    <button @click="closeChangelog" class="close-modal-btn">&times;</button>
+                </div>
+                <div class="modal-content-scroll">
+                    <template x-if="changelog.loading">
+                        <div class="loading-state">Cargando datos de GitHub...</div>
+                    </template>
+                    <template x-if="changelog.error">
+                        <div class="error-state">
+                            <p>No se pudo cargar el historial de cambios.</p>
+                            <small>Verifica tu conexión a internet.</small>
+                        </div>
+                    </template>
+                    <template x-for="release in changelog.data" :key="release.tag">
+                        <div class="release-item">
+                            <div class="release-header">
+                                <span class="release-tag" x-text="release.tag"></span>
+                                <span class="release-date" x-text="release.date"></span>
+                            </div>
+                            <div class="release-body" x-html="release.body"></div>
+                        </div>
+                    </template>
+                </div>
+            </div>
         </div>
 
         <!-- Confirmation Modal -->
@@ -422,7 +462,8 @@
                 </div>
             </div>
         </div>
-        <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "960bfeaf2e5247d8b27653dbaed44b29"}'></script>
+        <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
+            data-cf-beacon='{"token": "960bfeaf2e5247d8b27653dbaed44b29"}'></script>
         <script>
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
