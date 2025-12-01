@@ -410,7 +410,7 @@ function app() {
         // Formatear datos para visualización simple
         this.changelog.data = data.map(release => ({
           tag: release.tag_name,
-          date: new Date(release.published_at).toLocaleDateString(),
+          date: new Date(release.created_at).toLocaleDateString(),
           name: release.name || release.tag_name,
           body: this.formatReleaseBody(release.body)
         }));
