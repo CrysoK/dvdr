@@ -1,5 +1,5 @@
 function app() {
-  const APP_VERSION = '1.3.0';
+  const APP_VERSION = '1.4.0';
   const STORAGE_KEY = 'dvd_data';
 
   const MIGRATIONS = {
@@ -50,16 +50,28 @@ function app() {
     expenseForm: { description: '', amount: null, payer: '', participants: [], splitType: 'equal', customSplit: {}, },
     adjustmentForm: { description: '', amount: null, beneficiary: '', contributors: [], },
     transferForm: { from: '', to: '', amount: null, },
+    waitingWorker: null,
+    hasUpdate: false,
 
     init() {
       this.loadData();
+      window.addEventListener('sw-update-available', (event) => {
+        this.hasUpdate = true;
+        this.waitingWorker = event.detail;
+      });
       this.$watch('people', () => {
         if (this.editingTransactionId) return;
         this.expenseForm.participants = [...this.people];
         this.adjustmentForm.contributors = [...this.people];
       });
     },
-
+    refreshApp() {
+      this.addNotification('Actualizando aplicación...', 'info');
+      if (this.waitingWorker) {
+        // Le dice al SW que tome el control. Esto disparará 'controllerchange' en index.html
+        this.waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+      }
+    },
     saveData() {
       const data = { version: this.version, people: this.people, transactions: this.transactions, history: this.history };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));

@@ -462,18 +462,44 @@
                 </div>
             </div>
         </div>
+        <!-- Toast de Actualización -->
+        <div class="update-toast" x-show="hasUpdate" x-cloak x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 translate-y-full" x-transition:enter-end="opacity-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0 translate-y-full">
+            <div class="update-content">
+                <span>✨ Nueva versión disponible</span>
+                <button @click="refreshApp">Actualizar</button>
+            </div>
+        </div>
         <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
             data-cf-beacon='{"token": "960bfeaf2e5247d8b27653dbaed44b29"}'></script>
         <script>
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('/sw.js')
-                        .then(registration => {
-                            console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                        })
-                        .catch(err => {
-                            console.log('ServiceWorker registration failed: ', err);
-                        });
+                    let refreshing = false;
+                    // Escuchar cuando el SW tome el control (después de darle al botón actualizar)
+                    navigator.serviceWorker.addEventListener('controllerchange', () => {
+                        if (!refreshing) {
+                            window.location.reload();
+                            refreshing = true;
+                        }
+                    });
+                    navigator.serviceWorker.register('/sw.js').then(registration => {
+                        // 1. Si hay un SW esperando activarse (ej: recargaste la pestaña pero no la cerraste)
+                        if (registration.waiting) {
+                            window.dispatchEvent(new CustomEvent('sw-update-available', { detail: registration.waiting }));
+                        }
+                        // 2. Si se encuentra una actualización mientras usas la app
+                        registration.onupdatefound = () => {
+                            const newWorker = registration.installing;
+                            newWorker.onstatechange = () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // Avisar a Alpine.js
+                                    window.dispatchEvent(new CustomEvent('sw-update-available', { detail: newWorker }));
+                                }
+                            };
+                        };
+                    });
                 });
             }
         </script>

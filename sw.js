@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dvdr-cache-v1.3.0';
+const CACHE_NAME = 'dvdr-cache-v1.4.0';
 const urlsToCache = [
   // Archivos principales
   '/',
@@ -65,4 +65,11 @@ self.addEventListener('fetch', event => {
         return response || fetch(event.request);
       })
   );
+});
+
+// Permitir al SW tomar el control inmediatamente cuando se le ordene
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
