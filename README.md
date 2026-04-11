@@ -97,3 +97,38 @@ Para ejecutar este proyecto localmente:
 
 > **Nota:** Las funciones de salas colaborativas requieren conexión a internet
 > para comunicarse con Firebase.
+
+## 🚢 Lanzar una nueva versión
+
+1. **Actualizar la versión en el código:**
+   - `script.js` → `APP_VERSION` (ej: `'2.0.1'`)
+   - `sw.js` → `CACHE_NAME` (ej: `'dvdr-cache-v2.0.1'`)
+
+2. **Commit y push:**
+   ```bash
+   git add .
+   git commit -m "Bump version to X.Y.Z"
+   git push
+   ```
+
+3. **Crear el tag:**
+   ```bash
+   git tag vX.Y.Z
+   git push origin vX.Y.Z
+   ```
+
+4. **Crear el Release en GitHub:**
+   - Ir a [Releases](https://github.com/CrysoK/DVDr/releases/new)
+   - Seleccionar el tag `vX.Y.Z`
+   - Título: `vX.Y.Z`
+   - Escribir el changelog en el body (formato lista markdown)
+   - Publicar
+
+5. **Desplegar a producción en Vercel:**
+   ```bash
+   vercel --prod
+   ```
+
+> **Tip:** La app muestra las novedades al usuario directamente desde los
+> GitHub Releases, así que el body del release es lo que van a leer los
+> usuarios en la sección "Novedades".
