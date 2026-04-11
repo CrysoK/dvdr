@@ -7,7 +7,7 @@ const urlsToCache = [
   'style.css',
   'manifest.json',
   // Librerías externas
-  'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js',
+  'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/module.esm.js',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap',
   // Íconos
   'icons/favicon.ico',

@@ -21,6 +21,47 @@ crear una cuenta.
 * **Comparte fácilmente:** Genera un enlace único para compartir el estado
   actual de la división con otros.
 
+### 🌐 Salas colaborativas en tiempo real
+
+* **Crea o únete a una sala:** Trabaja en la misma división con otras personas
+  en tiempo real usando Firebase Realtime Database.
+* **Presencia en línea:** Ve quién está conectado con indicadores de estado
+  (🟢 online / ⚪ offline).
+* **Roles:** El creador de la sala tiene permisos de administrador (👑) para
+  gestionar participantes y datos.
+* **Invitaciones directas:** Genera enlaces personalizados con nombre
+  pre-asignado para que otros se unan con un solo clic.
+* **Renombrado remoto:** El admin puede cambiar nombres de usuarios conectados,
+  y estos reciben la actualización en tiempo real.
+* **Auto-reconexión:** Si abrís un enlace de sala, DVDr recuerda tu nombre de
+  la última sesión y te reconecta automáticamente.
+* **Limpieza automática:** Las salas inactivas por más de 7 días se eliminan
+  automáticamente.
+
+### 📱 Aplicación web progresiva (PWA)
+
+* **Instalable:** Añadí DVDr a tu pantalla de inicio desde el navegador para
+  usarla como una app nativa.
+* **Funciona offline:** Gracias al Service Worker, la app se carga incluso sin
+  conexión a internet.
+* **Actualizaciones automáticas:** Recibí un aviso cuando haya una nueva versión
+  disponible y actualizá con un toque.
+
+### 🆕 Otras funcionalidades
+
+* **Datos de demostración:** Cargá datos de ejemplo para explorar todas las
+  funciones sin tener que ingresar datos reales.
+* **Copiado de resúmenes:** Copiá al portapapeles un resumen corto o detallado
+  de las deudas, ideal para compartir por chat.
+* **Resumen de totales:** Consultá cuánto pagó cada persona y cuánto le
+  correspondía pagar.
+* **Changelog integrado:** Consultá las novedades de cada versión directamente
+  desde la app, con datos obtenidos de los releases de GitHub.
+* **Edición de transacciones:** Editá cualquier transacción existente sin
+  necesidad de borrarla y volver a crearla.
+* **Confirmaciones de seguridad:** Todas las acciones destructivas requieren
+  confirmación explícita.
+
 ## 🚀 Cómo usarlo
 
 Simplemente abre [dvdr.vercel.app](https://dvdr.vercel.app) y empieza a usarla.
@@ -32,9 +73,27 @@ Simplemente abre [dvdr.vercel.app](https://dvdr.vercel.app) y empieza a usarla.
 3. **Consulta las deudas:** El "Resumen de deudas" se actualizará
    automáticamente mostrando la forma más simple de saldar las cuentas.
 
-## 🛠️ Desarrollo local
+### Modo colaborativo
+
+1. Hacé clic en el botón **"👤 Personal"** en la cabecera.
+2. **Creá una sala** con un nombre de evento y tu nombre, o **uníte** con un
+   código existente.
+3. Compartí el enlace o código de sala para que otros se sumen en tiempo real.
+
+## 🛠️ Tecnologías
+
+* [Alpine.js](https://alpinejs.dev/) — Framework reactivo ligero
+* [Firebase Realtime Database](https://firebase.google.com/docs/database) —
+  Sincronización en tiempo real
+* Vanilla CSS — Estilos personalizados sin frameworks
+* Service Worker — Soporte offline y PWA
+
+## 💻 Desarrollo local
 
 Para ejecutar este proyecto localmente:
 
 1. Clona el repositorio: `git clone https://github.com/CrysoK/DVDr.git`
 2. Abre el archivo `index.html` en tu navegador web.
+
+> **Nota:** Las funciones de salas colaborativas requieren conexión a internet
+> para comunicarse con Firebase.

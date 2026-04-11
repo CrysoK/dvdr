@@ -1,508 +1,602 @@
 <!DOCTYPE html>
 <html lang="es">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description"
-            content="DVDr es una herramienta web simple y gratuita para calcular y dividir gastos compartidos entre amigos, familiares o compañeros de viaje. Registra quién pagó qué y salda las deudas fácilmente.">
-        <meta name="theme-color" content="#274768" />
-        <link rel="manifest" href="manifest.json">
-        <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-        <meta name="application-name" content="DVDr">
-        <meta name="author" content="CrysoK">
-        <!-- Open Graph / Facebook / WhatsApp -->
-        <meta property="og:type" content="website">
-        <meta property="og:url" content="https://dvdr.vercel.app/">
-        <meta property="og:title" content="DVDr - Dividí gastos, no amistades">
-        <meta property="og:description"
-            content="Calculadora gratuita para dividir gastos compartidos en viajes y juntadas. Sin registro, simple y rápida.">
-        <meta property="og:image" content="https://dvdr.vercel.app/og-image.png">
-        <meta property="og:image:width" content="1200">
-        <meta property="og:image:height" content="630">
-        <!-- Twitter -->
-        <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="DVDr - Calculadora de gastos compartidos">
-        <meta name="twitter:description"
-            content="Olvídate de las cuentas complicadas. Registra gastos y salda deudas fácilmente.">
-        <meta name="twitter:image" content="https://dvdr.vercel.app/og-image.png">
-        <title>DVDr - Calculadora de gastos compartidos</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-        <link rel="icon" type="image/png" href="/icons/favicon-96x96.png" sizes="96x96" />
-        <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
-        <link rel="shortcut icon" href="/icons/favicon.ico" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
-        <meta name="apple-mobile-web-app-title" content="DVDr" />
-        <link rel="stylesheet" href="style.css">
-        <script defer src="script.js"></script>
-        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="DVDr es una herramienta web simple y gratuita para calcular y dividir gastos compartidos entre amigos, familiares o compañeros de viaje. Registra quién pagó qué y salda las deudas fácilmente.">
+    <meta name="theme-color" content="#274768" />
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-maskable-192x192.png">
+    <meta name="application-name" content="DVDr">
+    <meta name="author" content="CrysoK">
+    <!-- Open Graph / Facebook / WhatsApp -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://dvdr.vercel.app/">
+    <meta property="og:title" content="DVDr - Dividí gastos, no amistades">
+    <meta property="og:description"
+        content="Calculadora gratuita para dividir gastos compartidos en viajes y juntadas. Sin registro, simple y rápida.">
+    <meta property="og:image" content="https://dvdr.vercel.app/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="DVDr - Calculadora de gastos compartidos">
+    <meta name="twitter:description"
+        content="Olvídate de las cuentas complicadas. Registra gastos y salda deudas fácilmente.">
+    <meta name="twitter:image" content="https://dvdr.vercel.app/og-image.png">
+    <title>DVDr - Calculadora de gastos compartidos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="/icons/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
+    <link rel="shortcut icon" href="/icons/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="DVDr" />
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="script.js"></script>
 
-    <body x-data="app()" x-cloak>
-        <div class="container">
-            <header class="header">
-                <h1>
-                    <svg class="app-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"
-                        aria-label="Logo DVDr">
-                        <rect width="100" height="100" rx="22" fill="#274768" />
-                        <circle cx="50" cy="50" r="32" stroke="#91dbc0" stroke-width="6" fill="none" />
-                        <circle cx="50" cy="33" r="5" fill="#91dbc0" />
-                        <rect x="32" y="47" width="36" height="6" rx="3" fill="#91dbc0" />
-                        <circle cx="50" cy="67" r="5" fill="#91dbc0" />
-                    </svg>
-                    DVDr
-                </h1>
-                <p>Dividí gastos, no amistades</p>
-            </header>
+</head>
 
-            <div class="main-grid">
-                <!-- COLUMNA IZQUIERDA: PERSONAS, DEUDAS E HISTORIAL -->
-                <div class="left-column">
-                    <!-- SECCIÓN PERSONAS -->
-                    <div class="card">
-                        <h2 class="card-header"><span>👥</span> 1. Añade a las personas</h2>
-                        <form @submit.prevent="addPerson" class="add-person-form">
-                            <div class="form-group">
-                                <label for="person-name">Nombre:</label>
-                                <input type="text" id="person-name" placeholder="Ej: Ana" x-model="newPersonName"
-                                    required>
-                            </div>
-                            <button type="submit">Añadir persona</button>
-                        </form>
-                        <hr style="border: none; border-top: 1px solid var(--border-color); margin: 1.5rem 0;">
-                        <template x-if="people.length === 0">
-                            <div class="empty-state-wrapper">
-                                <p class="empty-state">Aún no hay personas añadidas.</p>
-                                <button @click="loadDemoData" type="button" class="demo-btn">
-                                    Cargar ejemplo
-                                </button>
-                            </div>
+<body x-data="app" x-cloak>
+    <div class="container">
+        <header class="header">
+            <h1>
+                <svg class="app-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-label="Logo DVDr">
+                    <rect width="100" height="100" rx="22" fill="#274768" />
+                    <circle cx="50" cy="50" r="32" stroke="#91dbc0" stroke-width="6" fill="none" />
+                    <circle cx="50" cy="33" r="5" fill="#91dbc0" />
+                    <rect x="32" y="47" width="36" height="6" rx="3" fill="#91dbc0" />
+                    <circle cx="50" cy="67" r="5" fill="#91dbc0" />
+                </svg>
+                DVDr
+            </h1>
+            <p>Dividí gastos, no amistades</p>
+            <div
+                style="margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: center; align-items: center; flex-wrap: wrap;">
+                <button @click="isOnline ? disconnectOnline() : openOnlineModal()"
+                    :style="isOnline ? 'background-color: var(--success-color); color: white;' : 'background-color: var(--card-bg); color: var(--text-color);'"
+                    :disabled="!isOnline && !$store.__dbAvailable">
+                    <span
+                        x-text="isOnline ? (isFirebaseConnected ? '🟢 Sala: ' + eventId + (isAdmin ? ' 👑' : '') : '⏳ Reconectando: ' + eventId + '...') : '👤 Personal'"></span>
+                </button>
+                <button x-show="isOnline" @click="copyOnlineLink" class="secondary" title="Copiar enlace de la sala"
+                    style="background-color: var(--card-bg);">
+                    📋 Copiar enlace
+                </button>
+            </div>
+        </header>
+
+        <div class="main-grid" :style="isOnline && !isFirebaseConnected ? 'pointer-events: none; opacity: 0.6;' : ''">
+            <!-- Banner de desconexión -->
+            <div x-show="isOnline && !isFirebaseConnected"
+                style="background-color: var(--danger-color); color: white; padding: 10px; border-radius: 8px; text-align: center; grid-column: 1 / -1; margin-bottom: 1rem;">
+                <strong>Sin conexión al servidor</strong>. Reconectando...
+            </div>
+            <!-- COLUMNA IZQUIERDA: PERSONAS, DEUDAS E HISTORIAL -->
+            <div class="left-column">
+                <!-- SECCIÓN PERSONAS -->
+                <div class="card">
+                    <h2 class="card-header"><span>👥</span> 1. Añade a las personas</h2>
+                    <form @submit.prevent="addPerson" class="add-person-form">
+                        <div class="form-group">
+                            <label for="person-name">Nombre:</label>
+                            <input type="text" id="person-name" placeholder="Ej: Ana" x-model="newPersonName" required>
+                        </div>
+                        <button type="submit">Añadir persona</button>
+                    </form>
+                    <hr style="border: none; border-top: 1px solid var(--border-color); margin: 1.5rem 0;">
+                    <template x-if="people.length === 0">
+                        <div class="empty-state-wrapper">
+                            <p class="empty-state">Aún no hay personas añadidas.</p>
+                            <button @click="loadDemoData" type="button" class="demo-btn">
+                                Cargar ejemplo
+                            </button>
+                        </div>
+                    </template>
+                    <div class="people-list-container" x-show="people.length > 0">
+                        <div class="people-list">
+                            <template x-for="person in people" :key="person">
+                                <div class="person-pill">
+                                    <template x-if="editingPerson.oldName !== person">
+                                        <span>
+                                            <span x-text="person === currentUser ? person + ' (Tú)' : person"
+                                                :style="person === currentUser ? 'font-weight:bold; color: var(--primary-color)' : ''"></span>
+                                            <span x-show="isOnline && claimedUsers[person] && onlinePresence[person]"
+                                                title="En línea" style="font-size: 0.75em; margin-left: 2px;">🟢</span>
+                                            <span x-show="isOnline && claimedUsers[person] && !onlinePresence[person]"
+                                                title="Desconectado"
+                                                style="font-size: 0.75em; margin-left: 2px; filter: grayscale(1);">⚪</span>
+                                        </span>
+                                    </template>
+                                    <template x-if="editingPerson.oldName === person">
+                                        <input type="text" x-model="editingPerson.newName"
+                                            @keydown.enter.prevent="savePersonName(person)"
+                                            @keydown.escape.window="cancelEditPerson" @blur="savePersonName(person)"
+                                            x-ref="personInput"
+                                            x-init="$nextTick(() => { $el.focus(); $el.select(); })">
+                                    </template>
+                                    <button class="person-action-btn" @click="startEditPerson(person)"
+                                        title="Editar nombre"
+                                        x-show="editingPerson.oldName !== person && !(isOnline && claimedUsers[person] && person !== currentUser && !isAdmin)">✏️</button>
+                                    <button class="person-action-btn" @click="copyPersonLink(person)"
+                                        title="Copiar link de ingreso directo"
+                                        x-show="isOnline && !claimedUsers[person]">🔗</button>
+                                    <button @click="removePerson(person)" class="delete-person-btn"
+                                        x-show="!(isOnline && claimedUsers[person] && person !== currentUser && !isAdmin)"
+                                        title="Eliminar persona">&times;</button>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN RESUMEN DEUDAS -->
+                <div class="card">
+                    <h2 class="card-header"><span>✅</span> Resumen de deudas</h2>
+                    <ul class="results-list">
+                        <template x-if="simplifiedDebts.length === 0">
+                            <li class="empty-state">No hay deudas pendientes.</li>
                         </template>
-                        <div class="people-list-container" x-show="people.length > 0">
-                            <div class="people-list">
+                        <template x-for="debt in simplifiedDebts" :key="`${debt.from}-${debt.to}`">
+                            <li class="debt-item">
+                                <span x-text="debt.from"></span>
+                                <span class="debt-arrow">➔</span>
+                                <span x-text="debt.to"></span>
+                                <span x-text="formatAmount(debt.amount)"></span>
+                            </li>
+                        </template>
+                    </ul>
+                    <div id="share-section">
+                        <button @click="copyShortSummary" class="secondary">Copiar resumen</button>
+                        <button @click="copyDetailedSummary" class="secondary">Resumen detallado</button>
+                        <button @click="generateShareLink" class="secondary">Crear enlace</button>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN HISTORIAL DE DIVISIONES -->
+                <div class="card">
+                    <h2 class="card-header"><span>🗂️</span> Historial de divisiones</h2>
+                    <form @submit.prevent="saveToHistory" style="margin-bottom: 1.5rem;">
+                        <div class="form-group">
+                            <label for="history-name">Nombre de la división:</label>
+                            <input type="text" id="history-name" x-model="newHistoryName"
+                                placeholder="Ej: Viaje a la playa" required>
+                        </div>
+                        <button type="submit" :disabled="people.length === 0"
+                            :title="isOnline ? 'Se añadirá este evento compartido permanentemente a tu historial' : ''">Guardar
+                            evento actual</button>
+                    </form>
+                    <ul class="history-list">
+                        <template x-if="history.length === 0">
+                            <li class="empty-state">No hay divisiones guardadas.</li>
+                        </template>
+                        <template x-for="item in history" :key="item.id">
+                            <li>
+                                <div class="history-icon" style="color: var(--secondary-color);"><span>📂</span>
+                                </div>
+                                <div class="history-details">
+                                    <div class="description" x-text="item.name"></div>
+                                    <div class="metadata"
+                                        x-text="`${formatDate(item.date)} • ${item.data.people.length} personas • ${item.data.transactions.length} transacciones`">
+                                    </div>
+                                </div>
+                                <div class="history-actions">
+                                    <button @click="loadFromHistory(item.id)" class="history-action-btn"
+                                        :disabled="isOnline && !isAdmin && !item.eventId"
+                                        :style="(isOnline && !isAdmin && !item.eventId) ? 'opacity: 0.5; cursor: not-allowed;' : ''"
+                                        title="Cargar">📥</button>
+                                    <button @click="removeFromHistory(item.id)" class="history-action-btn delete"
+                                        title="Eliminar">🗑️</button>
+                                </div>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+
+            </div>
+
+            <!-- COLUMNA DERECHA: TRANSACCIONES E HISTORIAL -->
+            <div class="right-column">
+                <!-- SECCIÓN TRANSACCIONES -->
+                <div class="card" x-show="people.length > 1">
+                    <h2 class="card-header"><span>✍️</span> 2. Registra las transacciones</h2>
+                    <!-- Pestañas -->
+                    <div class="tabs">
+                        <button class="tab-button" :class="{ 'active': activeTab === 'expense' }"
+                            @click="activeTab = 'expense'">Gasto</button>
+                        <button class="tab-button" :class="{ 'active': activeTab === 'adjustment' }"
+                            @click="activeTab = 'adjustment'">Ajuste</button>
+                        <button class="tab-button" :class="{ 'active': activeTab === 'transfer' }"
+                            @click="activeTab = 'transfer'">Transferencia</button>
+                    </div>
+
+                    <!-- Formulario de Gasto -->
+                    <form x-show="activeTab === 'expense'" @submit.prevent="addExpense">
+                        <div class="form-group">
+                            <label for="expense-description">Descripción:</label>
+                            <input type="text" id="expense-description" x-model="expenseForm.description"
+                                placeholder="Ej: Cena, supermercado" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="expense-amount">Monto total:</label>
+                            <input type="number" id="expense-amount" x-model.number="expenseForm.amount"
+                                placeholder="50.00" step="0.01" min="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="expense-payer">¿Quién pagó?</label>
+                            <select id="expense-payer" x-model="expenseForm.payer" required>
+                                <option value="" disabled>Selecciona una persona</option>
                                 <template x-for="person in people" :key="person">
-                                    <div class="person-pill">
-                                        <template x-if="editingPerson.oldName !== person">
-                                            <span x-text="person"></span>
-                                        </template>
-                                        <template x-if="editingPerson.oldName === person">
-                                            <input type="text" x-model="editingPerson.newName"
-                                                @keydown.enter.prevent="savePersonName(person)"
-                                                @keydown.escape.window="cancelEditPerson" @blur="savePersonName(person)"
-                                                x-ref="personInput"
-                                                x-init="$nextTick(() => { $el.focus(); $el.select(); })">
-                                        </template>
-                                        <button class="person-action-btn" @click="startEditPerson(person)"
-                                            title="Editar nombre" x-show="editingPerson.oldName !== person">✏️</button>
-                                        <button @click="removePerson(person)" class="delete-person-btn"
-                                            title="Eliminar persona">&times;</button>
+                                    <option :value="person" x-text="person"></option>
+                                </template>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>¿Entre quiénes se divide?</label>
+                            <div class="participants-grid">
+                                <template x-for="person in people" :key="person">
+                                    <div class="participant-item">
+                                        <input type="checkbox" :id="'participant-' + person" :value="person"
+                                            x-model="expenseForm.participants" class="visually-hidden">
+                                        <label :for="'participant-' + person" x-text="person"></label>
                                     </div>
                                 </template>
                             </div>
                         </div>
-                    </div>
+                        <div class="form-group">
+                            <label>Tipo de división:</label>
+                            <select x-model="expenseForm.splitType">
+                                <option value="equal">Partes iguales</option>
+                                <option value="custom">División personalizada</option>
+                            </select>
+                        </div>
+                        <div id="custom-split-container" x-show="expenseForm.splitType === 'custom'">
+                            <p><strong>Especifica las partes para cada participante:</strong></p>
+                            <div class="custom-split-grid">
+                                <template x-for="p in expenseForm.participants" :key="p">
+                                    <div class="form-group">
+                                        <label x-text="p"></label>
+                                        <input type="number" x-model.number="expenseForm.customSplit[p]" placeholder="1"
+                                            min="0" step="0.01">
+                                    </div>
+                                </template>
+                            </div>
+                            <small x-text="`Suma total de partes: ${customSplitTotal.toFixed(2)}`"></small>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit"
+                                x-text="editingTransactionId ? 'Guardar cambios' : 'Añadir gasto'"></button>
+                            <button type="button" class="secondary" x-show="editingTransactionId"
+                                @click="cancelEditTransaction">Cancelar</button>
+                        </div>
+                    </form>
 
-                    <!-- SECCIÓN RESUMEN DEUDAS -->
-                    <div class="card">
-                        <h2 class="card-header"><span>✅</span> Resumen de deudas</h2>
+                    <!-- Formulario de Ajuste (Premio/Multa) -->
+                    <form x-show="activeTab === 'adjustment'" @submit.prevent="addAdjustment">
+                        <div class="form-group">
+                            <label for="adjustment-description">Descripción:</label>
+                            <input type="text" id="adjustment-description" x-model="adjustmentForm.description"
+                                placeholder="Ej: Premio por ganar" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="adjustment-amount">Monto del ajuste:</label>
+                            <input type="number" id="adjustment-amount" x-model.number="adjustmentForm.amount"
+                                placeholder="10.00" step="0.01" min="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="adjustment-beneficiary">¿Quién recibe este ajuste (beneficiario)?</label>
+                            <select id="adjustment-beneficiary" x-model="adjustmentForm.beneficiary" required>
+                                <option value="" disabled>Selecciona una persona</option>
+                                <template x-for="person in people" :key="person">
+                                    <option :value="person" x-text="person"></option>
+                                </template>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>¿Quiénes cubren este ajuste?</label>
+                            <div class="participants-grid">
+                                <template x-for="person in people" :key="person">
+                                    <div class="participant-item">
+                                        <input type="checkbox" :id="'contributor-' + person" :value="person"
+                                            x-model="adjustmentForm.contributors" class="visually-hidden">
+                                        <label :for="'contributor-' + person" x-text="person"></label>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="warning"
+                                x-text="editingTransactionId ? 'Guardar cambios' : 'Añadir ajuste'"></button>
+                            <button type="button" class="secondary" x-show="editingTransactionId"
+                                @click="cancelEditTransaction">Cancelar</button>
+                        </div>
+                    </form>
+
+                    <!-- Formulario de Transferencia -->
+                    <form x-show="activeTab === 'transfer'" @submit.prevent="addTransfer">
+                        <div class="form-group">
+                            <label for="transfer-from">Quién transfiere (de):</label>
+                            <select id="transfer-from" x-model="transferForm.from" required>
+                                <option value="" disabled>Selecciona</option>
+                                <template x-for="person in people" :key="person">
+                                    <option :value="person" x-text="person"></option>
+                                </template>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="transfer-to">Quién recibe (a):</label>
+                            <select id="transfer-to" x-model="transferForm.to" required>
+                                <option value="" disabled>Selecciona</option>
+                                <template x-for="person in people" :key="person">
+                                    <option :value="person" x-text="person"></option>
+                                </template>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="transfer-amount">Monto:</label>
+                            <input type="number" id="transfer-amount" x-model.number="transferForm.amount"
+                                placeholder="20.00" step="0.01" min="0.01" required>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit"
+                                x-text="editingTransactionId ? 'Guardar cambios' : 'Añadir transferencia'"></button>
+                            <button type="button" class="secondary" x-show="editingTransactionId"
+                                @click="cancelEditTransaction">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- SECCIÓN HISTORIAL -->
+                <div class="card">
+                    <h2 class="card-header"><span>🗓️</span> Historial de transacciones</h2>
+                    <ul class="history-list">
+                        <template x-if="transactions.length === 0">
+                            <li class="empty-state">No hay transacciones registradas.</li>
+                        </template>
+                        <template x-for="tx in transactions.slice().reverse()" :key="tx.id">
+                            <li>
+                                <div class="history-icon"
+                                    :style="{color: tx.type === 'expense' ? 'var(--primary-color)' : (tx.type === 'adjustment' ? 'var(--warning-color)' : 'var(--success-color)')}">
+                                    <span
+                                        x-text="tx.type === 'expense' ? '🛒' : (tx.type === 'adjustment' ? '🏆' : '💸')"></span>
+                                </div>
+                                <div class="history-details">
+                                    <div class="description" x-text="tx.description"></div>
+                                    <div style="font-size:0.8rem; color:var(--secondary-color); margin-top:4px;"
+                                        x-show="isOnline && tx.addedBy">
+                                        Añadido por <strong
+                                            x-text="tx.addedBy === currentUser ? 'Ti' : tx.addedBy"></strong> <span
+                                            x-show="tx.addedBy === eventCreator" title="Creador">👑</span>
+                                    </div>
+                                    <template x-if="tx.type === 'expense'">
+                                        <div class="metadata"><strong x-text="formatAmount(tx.amount)"></strong>
+                                            pagado por <strong x-text="tx.payer"></strong>. Dividido entre <span
+                                                x-text="tx.shares.map(s => s.person).join(', ')"></span>.</div>
+                                    </template>
+                                    <template x-if="tx.type === 'adjustment'">
+                                        <div class="metadata"><strong x-text="formatAmount(tx.amount)"></strong> a
+                                            favor de <strong x-text="tx.beneficiary"></strong>. Cubierto por <span
+                                                x-text="tx.contributors.join(', ')"></span>.</div>
+                                    </template>
+                                    <template x-if="tx.type === 'transfer'">
+                                        <div class="metadata"><strong x-text="formatAmount(tx.amount)"></strong> de
+                                            <strong x-text="tx.from"></strong> a <strong x-text="tx.to"></strong>.
+                                        </div>
+                                    </template>
+                                </div>
+                                <div class="history-actions">
+                                    <button @click="editTransaction(tx)" class="history-action-btn"
+                                        title="Editar">✏️</button>
+                                    <button @click="removeTransaction(tx.id)" class="history-action-btn delete"
+                                        title="Eliminar">🗑️</button>
+                                </div>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+
+                <details>
+                    <summary>Ver resumen de totales</summary>
+                    <div class="details-content">
+                        <h4 style="margin-top: 1.5em;">Total pagado (neto)</h4>
                         <ul class="results-list">
-                            <template x-if="simplifiedDebts.length === 0">
-                                <li class="empty-state">No hay deudas pendientes.</li>
-                            </template>
-                            <template x-for="debt in simplifiedDebts" :key="`${debt.from}-${debt.to}`">
-                                <li class="debt-item">
-                                    <span x-text="debt.from"></span>
-                                    <span class="debt-arrow">➔</span>
-                                    <span x-text="debt.to"></span>
-                                    <span x-text="formatAmount(debt.amount)"></span>
-                                </li>
+                            <template x-for="person in people" :key="person">
+                                <li><span x-text="person === currentUser ? person + ' (Tú)' : person"
+                                        :style="person === currentUser ? 'font-weight:bold; color: var(--primary-color)' : ''"></span><span
+                                        x-text="formatAmount(totals.totalPaidNet[person] || 0)"></span></li>
                             </template>
                         </ul>
-                        <div id="share-section">
-                            <button @click="copyShortSummary" class="secondary">Copiar resumen</button>
-                            <button @click="copyDetailedSummary" class="secondary">Resumen detallado</button>
-                            <button @click="generateShareLink" class="secondary">Crear enlace</button>
-                        </div>
-                    </div>
-
-                    <!-- SECCIÓN HISTORIAL DE DIVISIONES -->
-                    <div class="card">
-                        <h2 class="card-header"><span>🗂️</span> Historial de divisiones</h2>
-                        <form @submit.prevent="saveToHistory" style="margin-bottom: 1.5rem;">
-                            <div class="form-group">
-                                <label for="history-name">Nombre de la división:</label>
-                                <input type="text" id="history-name" x-model="newHistoryName"
-                                    placeholder="Ej: Viaje a la playa" required>
-                            </div>
-                            <button type="submit" :disabled="people.length === 0">Guardar división actual</button>
-                        </form>
-                        <ul class="history-list">
-                            <template x-if="history.length === 0">
-                                <li class="empty-state">No hay divisiones guardadas.</li>
-                            </template>
-                            <template x-for="item in history" :key="item.id">
-                                <li>
-                                    <div class="history-icon" style="color: var(--secondary-color);"><span>📂</span>
-                                    </div>
-                                    <div class="history-details">
-                                        <div class="description" x-text="item.name"></div>
-                                        <div class="metadata"
-                                            x-text="`${formatDate(item.date)} • ${item.data.people.length} personas • ${item.data.transactions.length} transacciones`">
-                                        </div>
-                                    </div>
-                                    <div class="history-actions">
-                                        <button @click="loadFromHistory(item.id)" class="history-action-btn"
-                                            title="Cargar">📥</button>
-                                        <button @click="removeFromHistory(item.id)" class="history-action-btn delete"
-                                            title="Eliminar">🗑️</button>
-                                    </div>
-                                </li>
+                        <h4 style="margin-top: 1.5em;">Total por pagar (lo que correspondía)</h4>
+                        <ul class="results-list">
+                            <template x-for="person in people" :key="person">
+                                <li><span x-text="person === currentUser ? person + ' (Tú)' : person"
+                                        :style="person === currentUser ? 'font-weight:bold; color: var(--primary-color)' : ''"></span><span
+                                        x-text="formatAmount(totals.totalShare[person] || 0)"></span></li>
                             </template>
                         </ul>
                     </div>
+                </details>
 
+                <div class="card" x-show="!isOnline || isAdmin">
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <button @click="loadDemoData" class="secondary">🪄 Cargar datos de demostración</button>
+                        <button @click="clearCurrentDivision" class="secondary">Limpiar división actual</button>
+                        <button @click="resetData" class="danger">Reiniciar todos los datos</button>
+                    </div>
                 </div>
-
-                <!-- COLUMNA DERECHA: TRANSACCIONES E HISTORIAL -->
-                <div class="right-column">
-                    <!-- SECCIÓN TRANSACCIONES -->
-                    <div class="card" x-show="people.length > 1">
-                        <h2 class="card-header"><span>✍️</span> 2. Registra las transacciones</h2>
-                        <!-- Pestañas -->
-                        <div class="tabs">
-                            <button class="tab-button" :class="{ 'active': activeTab === 'expense' }"
-                                @click="activeTab = 'expense'">Gasto</button>
-                            <button class="tab-button" :class="{ 'active': activeTab === 'adjustment' }"
-                                @click="activeTab = 'adjustment'">Ajuste</button>
-                            <button class="tab-button" :class="{ 'active': activeTab === 'transfer' }"
-                                @click="activeTab = 'transfer'">Transferencia</button>
-                        </div>
-
-                        <!-- Formulario de Gasto -->
-                        <form x-show="activeTab === 'expense'" @submit.prevent="addExpense">
-                            <div class="form-group">
-                                <label for="expense-description">Descripción:</label>
-                                <input type="text" id="expense-description" x-model="expenseForm.description"
-                                    placeholder="Ej: Cena, supermercado" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="expense-amount">Monto total:</label>
-                                <input type="number" id="expense-amount" x-model.number="expenseForm.amount"
-                                    placeholder="50.00" step="0.01" min="0.01" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="expense-payer">¿Quién pagó?</label>
-                                <select id="expense-payer" x-model="expenseForm.payer" required>
-                                    <option value="" disabled>Selecciona una persona</option>
-                                    <template x-for="person in people" :key="person">
-                                        <option :value="person" x-text="person"></option>
-                                    </template>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>¿Entre quiénes se divide?</label>
-                                <div class="participants-grid">
-                                    <template x-for="person in people" :key="person">
-                                        <div class="participant-item">
-                                            <input type="checkbox" :id="'participant-' + person" :value="person"
-                                                x-model="expenseForm.participants" class="visually-hidden">
-                                            <label :for="'participant-' + person" x-text="person"></label>
-                                        </div>
-                                    </template>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Tipo de división:</label>
-                                <select x-model="expenseForm.splitType">
-                                    <option value="equal">Partes iguales</option>
-                                    <option value="custom">División personalizada</option>
-                                </select>
-                            </div>
-                            <div id="custom-split-container" x-show="expenseForm.splitType === 'custom'">
-                                <p><strong>Especifica las partes para cada participante:</strong></p>
-                                <div class="custom-split-grid">
-                                    <template x-for="p in expenseForm.participants" :key="p">
-                                        <div class="form-group">
-                                            <label x-text="p"></label>
-                                            <input type="number" x-model.number="expenseForm.customSplit[p]"
-                                                placeholder="1" min="0" step="0.01">
-                                        </div>
-                                    </template>
-                                </div>
-                                <small x-text="`Suma total de partes: ${customSplitTotal.toFixed(2)}`"></small>
-                            </div>
-                            <div class="form-actions">
-                                <button type="submit"
-                                    x-text="editingTransactionId ? 'Guardar cambios' : 'Añadir gasto'"></button>
-                                <button type="button" class="secondary" x-show="editingTransactionId"
-                                    @click="cancelEditTransaction">Cancelar</button>
-                            </div>
-                        </form>
-
-                        <!-- Formulario de Ajuste (Premio/Multa) -->
-                        <form x-show="activeTab === 'adjustment'" @submit.prevent="addAdjustment">
-                            <div class="form-group">
-                                <label for="adjustment-description">Descripción:</label>
-                                <input type="text" id="adjustment-description" x-model="adjustmentForm.description"
-                                    placeholder="Ej: Premio por ganar" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="adjustment-amount">Monto del ajuste:</label>
-                                <input type="number" id="adjustment-amount" x-model.number="adjustmentForm.amount"
-                                    placeholder="10.00" step="0.01" min="0.01" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="adjustment-beneficiary">¿Quién recibe este ajuste (beneficiario)?</label>
-                                <select id="adjustment-beneficiary" x-model="adjustmentForm.beneficiary" required>
-                                    <option value="" disabled>Selecciona una persona</option>
-                                    <template x-for="person in people" :key="person">
-                                        <option :value="person" x-text="person"></option>
-                                    </template>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>¿Quiénes cubren este ajuste?</label>
-                                <div class="participants-grid">
-                                    <template x-for="person in people" :key="person">
-                                        <div class="participant-item">
-                                            <input type="checkbox" :id="'contributor-' + person" :value="person"
-                                                x-model="adjustmentForm.contributors" class="visually-hidden">
-                                            <label :for="'contributor-' + person" x-text="person"></label>
-                                        </div>
-                                    </template>
-                                </div>
-                            </div>
-                            <div class="form-actions">
-                                <button type="submit" class="warning"
-                                    x-text="editingTransactionId ? 'Guardar cambios' : 'Añadir ajuste'"></button>
-                                <button type="button" class="secondary" x-show="editingTransactionId"
-                                    @click="cancelEditTransaction">Cancelar</button>
-                            </div>
-                        </form>
-
-                        <!-- Formulario de Transferencia -->
-                        <form x-show="activeTab === 'transfer'" @submit.prevent="addTransfer">
-                            <div class="form-group">
-                                <label for="transfer-from">Quién transfiere (de):</label>
-                                <select id="transfer-from" x-model="transferForm.from" required>
-                                    <option value="" disabled>Selecciona</option>
-                                    <template x-for="person in people" :key="person">
-                                        <option :value="person" x-text="person"></option>
-                                    </template>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="transfer-to">Quién recibe (a):</label>
-                                <select id="transfer-to" x-model="transferForm.to" required>
-                                    <option value="" disabled>Selecciona</option>
-                                    <template x-for="person in people" :key="person">
-                                        <option :value="person" x-text="person"></option>
-                                    </template>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="transfer-amount">Monto:</label>
-                                <input type="number" id="transfer-amount" x-model.number="transferForm.amount"
-                                    placeholder="20.00" step="0.01" min="0.01" required>
-                            </div>
-                            <div class="form-actions">
-                                <button type="submit"
-                                    x-text="editingTransactionId ? 'Guardar cambios' : 'Añadir transferencia'"></button>
-                                <button type="button" class="secondary" x-show="editingTransactionId"
-                                    @click="cancelEditTransaction">Cancelar</button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <!-- SECCIÓN HISTORIAL -->
-                    <div class="card">
-                        <h2 class="card-header"><span>🗓️</span> Historial de transacciones</h2>
-                        <ul class="history-list">
-                            <template x-if="transactions.length === 0">
-                                <li class="empty-state">No hay transacciones registradas.</li>
-                            </template>
-                            <template x-for="tx in transactions.slice().reverse()" :key="tx.id">
-                                <li>
-                                    <div class="history-icon"
-                                        :style="{color: tx.type === 'expense' ? 'var(--primary-color)' : (tx.type === 'adjustment' ? 'var(--warning-color)' : 'var(--success-color)')}">
-                                        <span
-                                            x-text="tx.type === 'expense' ? '🛒' : (tx.type === 'adjustment' ? '🏆' : '💸')"></span>
-                                    </div>
-                                    <div class="history-details">
-                                        <div class="description" x-text="tx.description"></div>
-                                        <template x-if="tx.type === 'expense'">
-                                            <div class="metadata"><strong x-text="formatAmount(tx.amount)"></strong>
-                                                pagado por <strong x-text="tx.payer"></strong>. Dividido entre <span
-                                                    x-text="tx.shares.map(s => s.person).join(', ')"></span>.</div>
-                                        </template>
-                                        <template x-if="tx.type === 'adjustment'">
-                                            <div class="metadata"><strong x-text="formatAmount(tx.amount)"></strong> a
-                                                favor de <strong x-text="tx.beneficiary"></strong>. Cubierto por <span
-                                                    x-text="tx.contributors.join(', ')"></span>.</div>
-                                        </template>
-                                        <template x-if="tx.type === 'transfer'">
-                                            <div class="metadata"><strong x-text="formatAmount(tx.amount)"></strong> de
-                                                <strong x-text="tx.from"></strong> a <strong x-text="tx.to"></strong>.
-                                            </div>
-                                        </template>
-                                    </div>
-                                    <div class="history-actions">
-                                        <button @click="editTransaction(tx)" class="history-action-btn"
-                                            title="Editar">✏️</button>
-                                        <button @click="removeTransaction(tx.id)" class="history-action-btn delete"
-                                            title="Eliminar">🗑️</button>
-                                    </div>
-                                </li>
-                            </template>
-                        </ul>
-                    </div>
-
-                    <details>
-                        <summary>Ver resumen de totales</summary>
-                        <div class="details-content">
-                            <h4 style="margin-top: 1.5em;">Total pagado (neto)</h4>
-                            <ul class="results-list">
-                                <template x-for="person in people" :key="person">
-                                    <li><span x-text="person"></span><span
-                                            x-text="formatAmount(totals.totalPaidNet[person] || 0)"></span></li>
-                                </template>
-                            </ul>
-                            <h4 style="margin-top: 1.5em;">Total por pagar (lo que correspondía)</h4>
-                            <ul class="results-list">
-                                <template x-for="person in people" :key="person">
-                                    <li><span x-text="person"></span><span
-                                            x-text="formatAmount(totals.totalShare[person] || 0)"></span></li>
-                                </template>
-                            </ul>
-                        </div>
-                    </details>
-
-                    <div class="card">
-                        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                            <button @click="loadDemoData" class="secondary">🪄 Cargar datos de demostración</button>
-                            <button @click="clearCurrentDivision" class="secondary">Limpiar división actual</button>
-                            <button @click="resetData" class="danger">Reiniciar todos los datos</button>
-                        </div>
+                <div class="card" x-show="isOnline && isAdmin">
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <button @click="deleteOnlineEvent" class="danger">🗑️ Eliminar evento online para
+                            siempre</button>
                     </div>
                 </div>
             </div>
-
-            <footer>
-                <p>
-                    DVDr v<span x-text="version"></span> •
-                    <button @click="openChangelog" class="link-btn">Novedades</button>
-                </p>
-            </footer>
         </div>
 
-        <!-- Notification Container -->
-        <div class="notification-container">
-            <template x-for="notification in notifications" :key="notification.id">
-                <div class="notification" :class="'notification-' + notification.type" x-show="notification.visible"
-                    x-transition:enter-start="opacity-0 translate-x-full"
-                    x-transition:enter="transition ease-out duration-300"
-                    x-transition:leave="transition ease-in duration-300"
-                    x-transition:leave-end="opacity-0 translate-x-full" role="alert">
-                    <span x-text="notification.message"></span>
-                    <button @click="removeNotification(notification.id)" title="Cerrar">&times;</button>
-                </div>
-            </template>
-        </div>
+        <footer>
+            <p>
+                DVDr v<span x-text="version"></span> •
+                <button @click="openChangelog" class="link-btn">Novedades</button>
+            </p>
+        </footer>
+    </div>
 
-        <!-- MODAL CHANGELOG -->
-        <div class="modal-overlay" x-show="changelog.show" x-cloak x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0" x-transition:leave="transition ease-in duration-200"
-            x-transition:leave-end="opacity-0">
-            <div class="modal-box modal-wide" @click.outside="closeChangelog()"
-                x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95"
-                x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0 scale-95">
-                <div class="modal-header">
-                    <h3 class="modal-title">Novedades</h3>
-                    <button @click="closeChangelog" class="close-modal-btn">&times;</button>
+    <!-- Notification Container -->
+    <div class="notification-container">
+        <template x-for="notification in notifications" :key="notification.id">
+            <div class="notification" :class="'notification-' + notification.type" x-show="notification.visible"
+                x-transition:enter-start="opacity-0 translate-x-full"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:leave="transition ease-in duration-300" x-transition:leave-end="opacity-0 translate-x-full"
+                role="alert">
+                <span x-text="notification.message"></span>
+                <button @click="removeNotification(notification.id)" title="Cerrar">&times;</button>
+            </div>
+        </template>
+    </div>
+
+
+    <!-- MODAL ONLINE -->
+    <div class="modal-overlay" x-show="showOnlineModal" x-cloak>
+        <div class="modal-box" @click.outside="closeOnlineModal()">
+            <div class="modal-header">
+                <h3 class="modal-title">Salas colaborativas</h3>
+                <button x-show="!isOnline" @click="closeOnlineModal" class="close-modal-btn">&times;</button>
+            </div>
+            <div class="tabs" style="margin-top: 1rem;">
+                <button class="tab-button" :class="{'active': onlineTab==='join'}"
+                    @click="onlineTab = 'join'">Unirse</button>
+                <button class="tab-button" :class="{'active': onlineTab==='create'}"
+                    @click="onlineTab = 'create'">Crear</button>
+            </div>
+
+            <div x-show="onlineTab==='join'" style="margin-top: 1.5rem;">
+                <div class="form-group">
+                    <label>Código:</label>
+                    <input type="text" x-model="joinEventId" placeholder="Ej: ABCD12"
+                        style="text-transform: uppercase;">
                 </div>
-                <div class="modal-content-scroll">
-                    <template x-if="changelog.loading">
-                        <div class="loading-state">Cargando datos de GitHub...</div>
-                    </template>
-                    <template x-if="changelog.error">
-                        <div class="error-state">
-                            <p>No se pudo cargar el historial de cambios.</p>
-                            <small>Verifica tu conexión a internet.</small>
+                <div class="form-group">
+                    <label>¿Cuál es tu nombre?</label>
+                    <input type="text" x-model="newUserName" placeholder="Ej: Carlos" @keydown.enter="enterEvent">
+                </div>
+                <button @click="enterEvent" style="width: 100%;" :disabled="isJoining">
+                    <span x-text="isJoining ? 'Conectando...' : 'Entrar a la Sala'"></span>
+                </button>
+            </div>
+
+            <div x-show="onlineTab==='create'" style="margin-top: 1.5rem;">
+                <div class="form-group">
+                    <label>Nombre del evento:</label>
+                    <input type="text" x-model="createEventName" placeholder="Ej: Cumple de Mati"
+                        @keydown.enter="createEvent">
+                </div>
+                <div class="form-group">
+                    <label>¿Cuál es tu nombre?</label>
+                    <input type="text" x-model="newUserName" placeholder="Ej: Pedro" @keydown.enter="createEvent">
+                </div>
+                <button @click="createEvent" style="width: 100%;" class="primary" :disabled="isJoining">
+                    <span x-text="isJoining ? 'Creando...' : 'Generar y Entrar'"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CHANGELOG -->
+    <div class="modal-overlay" x-show="changelog.show" x-cloak x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0" x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-end="opacity-0">
+        <div class="modal-box modal-wide" @click.outside="closeChangelog()"
+            x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95"
+            x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0 scale-95">
+            <div class="modal-header">
+                <h3 class="modal-title">Novedades</h3>
+                <button @click="closeChangelog" class="close-modal-btn">&times;</button>
+            </div>
+            <div class="modal-content-scroll">
+                <template x-if="changelog.loading">
+                    <div class="loading-state">Cargando datos de GitHub...</div>
+                </template>
+                <template x-if="changelog.error">
+                    <div class="error-state">
+                        <p>No se pudo cargar el historial de cambios.</p>
+                        <small>Verifica tu conexión a internet.</small>
+                    </div>
+                </template>
+                <template x-for="release in changelog.data" :key="release.tag">
+                    <div class="release-item">
+                        <div class="release-header">
+                            <span class="release-tag" x-text="release.tag"></span>
+                            <span class="release-date" x-text="release.date"></span>
                         </div>
-                    </template>
-                    <template x-for="release in changelog.data" :key="release.tag">
-                        <div class="release-item">
-                            <div class="release-header">
-                                <span class="release-tag" x-text="release.tag"></span>
-                                <span class="release-date" x-text="release.date"></span>
-                            </div>
-                            <div class="release-body" x-html="release.body"></div>
-                        </div>
-                    </template>
-                </div>
+                        <div class="release-body" x-html="release.body"></div>
+                    </div>
+                </template>
             </div>
         </div>
+    </div>
 
-        <!-- Confirmation Modal -->
-        <div class="modal-overlay" x-show="confirmation.show" x-cloak
-            x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
-            x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0">
-            <div class="modal-box" x-show="confirmation.show" @click.outside="handleCancel()"
-                x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95"
-                x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0 scale-95"
-                role="dialog" aria-modal="true">
-                <h3 class="modal-title" x-text="confirmation.title"></h3>
-                <p class="modal-message" x-text="confirmation.message"></p>
-                <div class="modal-actions">
-                    <button @click="handleCancel()" class="secondary" x-text="confirmation.cancelText"></button>
-                    <button @click="handleConfirm()" :class="confirmation.confirmClass"
-                        x-text="confirmation.confirmText"></button>
-                </div>
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" x-show="confirmation.show" x-cloak x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0" x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-end="opacity-0">
+        <div class="modal-box" x-show="confirmation.show" @click.outside="handleCancel()"
+            x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95"
+            x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0 scale-95"
+            role="dialog" aria-modal="true">
+            <h3 class="modal-title" x-text="confirmation.title"></h3>
+            <p class="modal-message" x-text="confirmation.message"></p>
+            <div class="modal-actions">
+                <button @click="handleCancel()" class="secondary" x-text="confirmation.cancelText"></button>
+                <button @click="handleConfirm()" :class="confirmation.confirmClass"
+                    x-text="confirmation.confirmText"></button>
             </div>
         </div>
-        <!-- Toast de Actualización -->
-        <div class="update-toast" x-show="hasUpdate" x-cloak x-transition:enter="transition ease-out duration-300"
-            x-transition:enter-start="opacity-0 translate-y-full" x-transition:enter-end="opacity-100 translate-y-0"
-            x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0 translate-y-full">
-            <div class="update-content">
-                <span>✨ Nueva versión disponible</span>
-                <button @click="refreshApp">Actualizar</button>
-            </div>
+    </div>
+    <!-- Toast de Actualización -->
+    <div class="update-toast" x-show="hasUpdate" x-cloak x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0 translate-y-full" x-transition:enter-end="opacity-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0 translate-y-full">
+        <div class="update-content">
+            <span>✨ Nueva versión disponible</span>
+            <button @click="refreshApp">Actualizar</button>
         </div>
-        <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
-            data-cf-beacon='{"token": "960bfeaf2e5247d8b27653dbaed44b29"}'></script>
-        <script>
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    let refreshing = false;
-                    // Escuchar cuando el SW tome el control (después de darle al botón actualizar)
-                    navigator.serviceWorker.addEventListener('controllerchange', () => {
-                        if (!refreshing) {
-                            window.location.reload();
-                            refreshing = true;
-                        }
-                    });
-                    navigator.serviceWorker.register('/sw.js').then(registration => {
-                        // 1. Si hay un SW esperando activarse (ej: recargaste la pestaña pero no la cerraste)
-                        if (registration.waiting) {
-                            window.dispatchEvent(new CustomEvent('sw-update-available', { detail: registration.waiting }));
-                        }
-                        // 2. Si se encuentra una actualización mientras usas la app
-                        registration.onupdatefound = () => {
-                            const newWorker = registration.installing;
-                            newWorker.onstatechange = () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    // Avisar a Alpine.js
-                                    window.dispatchEvent(new CustomEvent('sw-update-available', { detail: newWorker }));
-                                }
-                            };
-                        };
-                    });
+    </div>
+    <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
+        data-cf-beacon='{"token": "960bfeaf2e5247d8b27653dbaed44b29"}'></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                let refreshing = false;
+                // Escuchar cuando el SW tome el control (después de darle al botón actualizar)
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (!refreshing) {
+                        window.location.reload();
+                        refreshing = true;
+                    }
                 });
-            }
-        </script>
-    </body>
+                navigator.serviceWorker.register('/sw.js').then(registration => {
+                    // 1. Si hay un SW esperando activarse (ej: recargaste la pestaña pero no la cerraste)
+                    if (registration.waiting) {
+                        window.dispatchEvent(new CustomEvent('sw-update-available', { detail: registration.waiting }));
+                    }
+                    // 2. Si se encuentra una actualización mientras usas la app
+                    registration.onupdatefound = () => {
+                        const newWorker = registration.installing;
+                        newWorker.onstatechange = () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // Avisar a Alpine.js
+                                window.dispatchEvent(new CustomEvent('sw-update-available', { detail: newWorker }));
+                            }
+                        };
+                    };
+                });
+            });
+        }
+    </script>
+</body>
 
 </html>
