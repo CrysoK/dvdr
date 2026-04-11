@@ -24,7 +24,7 @@ try {
 }
 
 Alpine.data('app', function () {
-  const APP_VERSION = '2.0.0';
+  const APP_VERSION = '2.0.1';
   const STORAGE_KEY = 'dvd_data';
 
   const MIGRATIONS = {
@@ -121,17 +121,17 @@ Alpine.data('app', function () {
       if (eventIdFromUrl) {
         this.joinEventId = eventIdFromUrl.toUpperCase();
         if (userFromUrl) {
-            this.newUserName = decodeURIComponent(userFromUrl);
-            this.$nextTick(() => this.enterEvent());
+          this.newUserName = decodeURIComponent(userFromUrl);
+          this.$nextTick(() => this.enterEvent());
         } else {
-            const savedUser = localStorage.getItem('dvdr_last_user_' + this.joinEventId);
-            if (savedUser) {
-                this.newUserName = savedUser;
-                this.$nextTick(() => this.enterEvent());
-            } else {
-                this.showOnlineModal = true;
-                this.onlineTab = 'join';
-            }
+          const savedUser = localStorage.getItem('dvdr_last_user_' + this.joinEventId);
+          if (savedUser) {
+            this.newUserName = savedUser;
+            this.$nextTick(() => this.enterEvent());
+          } else {
+            this.showOnlineModal = true;
+            this.onlineTab = 'join';
+          }
         }
       }
 
@@ -143,20 +143,20 @@ Alpine.data('app', function () {
         if (this.editingTransactionId) return;
         const oldP = oldVal || [];
         const newP = newVal || [];
-        
+
         const added = newP.filter(p => !oldP.includes(p));
         const removed = oldP.filter(p => !newP.includes(p));
 
         if (added.length === 0 && removed.length === 0) return;
 
         if (added.length > 0) {
-            this.expenseForm.participants = [...this.expenseForm.participants, ...added];
-            this.adjustmentForm.contributors = [...this.adjustmentForm.contributors, ...added];
+          this.expenseForm.participants = [...this.expenseForm.participants, ...added];
+          this.adjustmentForm.contributors = [...this.adjustmentForm.contributors, ...added];
         }
         if (removed.length > 0) {
-            this.expenseForm.participants = this.expenseForm.participants.filter(p => !removed.includes(p));
-            this.adjustmentForm.contributors = this.adjustmentForm.contributors.filter(p => !removed.includes(p));
-            removed.forEach(p => { delete this.expenseForm.customSplit[p]; });
+          this.expenseForm.participants = this.expenseForm.participants.filter(p => !removed.includes(p));
+          this.adjustmentForm.contributors = this.adjustmentForm.contributors.filter(p => !removed.includes(p));
+          removed.forEach(p => { delete this.expenseForm.customSplit[p]; });
         }
       });
     },
@@ -175,10 +175,10 @@ Alpine.data('app', function () {
       const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
       get(query(ref(db, 'events'), orderByChild('metadata/lastActive'), endAt(oneWeekAgo))).then(snap => {
         if (snap.exists()) {
-          snap.forEach(child => { 
+          snap.forEach(child => {
             const md = child.val().metadata;
             if (md && md.lastActive && md.lastActive <= oneWeekAgo) {
-               remove(ref(db, `events/${child.key}`));
+              remove(ref(db, `events/${child.key}`));
             }
           });
         }
@@ -187,7 +187,7 @@ Alpine.data('app', function () {
     async updateRemote(updates) {
       if (this.isOnline && db && this.eventId) {
         updates['metadata/lastActive'] = Date.now();
-        try { await update(ref(db, `events/${this.eventId}`), updates); } catch(e) { console.error("Error sync", e); }
+        try { await update(ref(db, `events/${this.eventId}`), updates); } catch (e) { console.error("Error sync", e); }
       }
     },
     saveData() {
@@ -408,12 +408,12 @@ Alpine.data('app', function () {
           this.showOnlineModal = false;
           window.history.pushState({}, '', `?e=${eventId}`);
           document.title = `Dvdr - Sala ${eventId}`;
-          
+
           localStorage.setItem('dvdr_last_user_' + eventId, userName);
 
           this.people = [];
           this.transactions = [];
-          
+
           // Verify admin: el token ya no es legible por rules, solo validamos con clave local
           const myAdminKeys = JSON.parse(localStorage.getItem('dvdr_admin_keys') || '{}');
           this.confirmedAdmin = !!myAdminKeys[eventId];
@@ -424,54 +424,54 @@ Alpine.data('app', function () {
           const myPresenceRef = ref(db, `events/${eventId}/presence/${userName}`);
           onDisconnect(myPresenceRef).remove();
           set(myPresenceRef, true);
-          
+
           let initialPresenceLoaded = false;
           this._firebaseUnsubs.push(onValue(ref(db, `events/${eventId}/presence`), (res) => {
-             const newPresence = res.exists() ? res.val() : {};
-             if (initialPresenceLoaded) {
-                 Object.keys(newPresence).forEach(u => {
-                     if (!this.onlinePresence[u] && u !== this.currentUser) {
-                         this.addNotification(`${u} se ha conectado`, 'info', 2000);
-                     }
-                 });
-                 Object.keys(this.onlinePresence).forEach(u => {
-                     if (!newPresence[u] && u !== this.currentUser) {
-                         this.addNotification(`${u} se ha desconectado`, 'info', 2000);
-                     }
-                 });
-             }
-             this.onlinePresence = newPresence;
-             initialPresenceLoaded = true;
+            const newPresence = res.exists() ? res.val() : {};
+            if (initialPresenceLoaded) {
+              Object.keys(newPresence).forEach(u => {
+                if (!this.onlinePresence[u] && u !== this.currentUser) {
+                  this.addNotification(`${u} se ha conectado`, 'info', 2000);
+                }
+              });
+              Object.keys(this.onlinePresence).forEach(u => {
+                if (!newPresence[u] && u !== this.currentUser) {
+                  this.addNotification(`${u} se ha desconectado`, 'info', 2000);
+                }
+              });
+            }
+            this.onlinePresence = newPresence;
+            initialPresenceLoaded = true;
           }));
 
           this._firebaseUnsubs.push(onValue(ref(db, `events/${eventId}/metadata`), (res) => {
             if (!res.exists() && this.isOnline && this.eventId === eventId) {
-                this.addNotification('El evento fue eliminado por el creador.', 'warning', 5000);
-                this.disconnectOnline(true);
+              this.addNotification('El evento fue eliminado por el creador.', 'warning', 5000);
+              this.disconnectOnline(true);
             } else if (res.exists()) {
-                const md = res.val();
-                this.eventName = md.name;
-                this.claimedUsers = md.users || {};
-                const renames = md.renames || {};
+              const md = res.val();
+              this.eventName = md.name;
+              this.claimedUsers = md.users || {};
+              const renames = md.renames || {};
 
-                if (this.isOnline && this.currentUser && this.claimedUsers && !this.claimedUsers[this.currentUser]) {
-                    if (renames[this.currentUser]) {
-                        const newName = renames[this.currentUser];
-                        this.addNotification(`Tu nombre fue actualizado a ${newName}`, 'info');
-                        this.currentUser = newName;
-                        localStorage.setItem('dvdr_last_user_' + this.eventId, newName);
-                        
-                        // Reconectar la presencia con el nuevo nombre
-                        if (db && this.isFirebaseConnected) {
-                             const newPresenceRef = ref(db, `events/${this.eventId}/presence/${newName}`);
-                             onDisconnect(newPresenceRef).remove();
-                             set(newPresenceRef, true);
-                        }
-                    } else {
-                        this.addNotification('Fuiste expulsado de la sala.', 'error', 5000);
-                        this.disconnectOnline(true);
-                    }
+              if (this.isOnline && this.currentUser && this.claimedUsers && !this.claimedUsers[this.currentUser]) {
+                if (renames[this.currentUser]) {
+                  const newName = renames[this.currentUser];
+                  this.addNotification(`Tu nombre fue actualizado a ${newName}`, 'info');
+                  this.currentUser = newName;
+                  localStorage.setItem('dvdr_last_user_' + this.eventId, newName);
+
+                  // Reconectar la presencia con el nuevo nombre
+                  if (db && this.isFirebaseConnected) {
+                    const newPresenceRef = ref(db, `events/${this.eventId}/presence/${newName}`);
+                    onDisconnect(newPresenceRef).remove();
+                    set(newPresenceRef, true);
+                  }
+                } else {
+                  this.addNotification('Fuiste expulsado de la sala.', 'error', 5000);
+                  this.disconnectOnline(true);
                 }
+              }
             }
           }));
 
@@ -479,7 +479,7 @@ Alpine.data('app', function () {
             if (res.exists()) {
               const d = res.val();
               this.people = d.people ? (Array.isArray(d.people) ? d.people : Object.keys(d.people)) : [];
-              this.transactions = d.transactions ? (Array.isArray(d.transactions) ? d.transactions : Object.values(d.transactions).sort((a,b) => a.id.toString().localeCompare(b.id.toString()))) : [];
+              this.transactions = d.transactions ? (Array.isArray(d.transactions) ? d.transactions : Object.values(d.transactions).sort((a, b) => a.id.toString().localeCompare(b.id.toString()))) : [];
               this.saveData();
             } else {
               if (this.isOnline && this.eventId === eventId) {
@@ -506,7 +506,7 @@ Alpine.data('app', function () {
     },
 
     _cleanupFirebaseListeners() {
-      this._firebaseUnsubs.forEach(unsub => { try { unsub(); } catch(e) {} });
+      this._firebaseUnsubs.forEach(unsub => { try { unsub(); } catch (e) { } });
       this._firebaseUnsubs = [];
     },
 
@@ -514,7 +514,7 @@ Alpine.data('app', function () {
       const exitLogic = () => {
         this._cleanupFirebaseListeners();
         if (db && this.eventId && this.currentUser) {
-           remove(ref(db, `events/${this.eventId}/presence/${this.currentUser}`));
+          remove(ref(db, `events/${this.eventId}/presence/${this.currentUser}`));
         }
         this.isOnline = false;
         this.eventId = null;
@@ -556,7 +556,7 @@ Alpine.data('app', function () {
             ]);
             this.disconnectOnline(true);
             this.addNotification('Evento eliminado permanentemente.', 'success');
-          } catch(e) {
+          } catch (e) {
             console.error('Error eliminando evento:', e);
             this.addNotification('Error eliminando evento', 'error');
           }
@@ -593,31 +593,31 @@ Alpine.data('app', function () {
                 } else {
                   this._loadLocalHistoryCopy(item, 'El evento online ya no existe. Se ha cargado la copia local.');
                 }
-              } catch(e) {
+              } catch (e) {
                 this._loadLocalHistoryCopy(item, 'Error de conexión. Cargando copia local.');
               }
             }
           });
         } else {
-           if (this.isOnline && !this.isAdmin) return this.addNotification('Solo el creador puede restaurar historias offline en la sala.', 'warning');
-           this.askConfirm({
-             title: `Cargar '${item.name}'`,
-             message: `Se reemplazarán los datos actuales (personas y transacciones). ¿Deseas continuar?`,
-             confirmText: 'Cargar',
-             onConfirm: () => {
-               this._loadLocalHistoryCopy(item, `'${item.name}' cargado.`);
-             }
-           });
+          if (this.isOnline && !this.isAdmin) return this.addNotification('Solo el creador puede restaurar historias offline en la sala.', 'warning');
+          this.askConfirm({
+            title: `Cargar '${item.name}'`,
+            message: `Se reemplazarán los datos actuales (personas y transacciones). ¿Deseas continuar?`,
+            confirmText: 'Cargar',
+            onConfirm: () => {
+              this._loadLocalHistoryCopy(item, `'${item.name}' cargado.`);
+            }
+          });
         }
       }
     },
     _loadLocalHistoryCopy(item, msg) {
-        this.people = JSON.parse(JSON.stringify(item.data.people));
-        this.transactions = JSON.parse(JSON.stringify(item.data.transactions));
-        this.cancelEditTransaction();
-        this.saveData();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        this.addNotification(msg, 'success');
+      this.people = JSON.parse(JSON.stringify(item.data.people));
+      this.transactions = JSON.parse(JSON.stringify(item.data.transactions));
+      this.cancelEditTransaction();
+      this.saveData();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      this.addNotification(msg, 'success');
     },
     removeFromHistory(id) {
       const item = this.history.find(h => h.id === id);
@@ -652,9 +652,9 @@ Alpine.data('app', function () {
     },
     removePerson(name) {
       if (this.isOnline && this.claimedUsers[name] && name !== this.currentUser) {
-         if (!this.isAdmin) {
-             return this.addNotification('Solo el creador puede eliminar a un usuario en línea.', 'warning');
-         }
+        if (!this.isAdmin) {
+          return this.addNotification('Solo el creador puede eliminar a un usuario en línea.', 'warning');
+        }
       }
       this.askConfirm({
         title: `Eliminar a ${name}`,
@@ -675,28 +675,28 @@ Alpine.data('app', function () {
             if (!keep) removedTxs.push(tx.id);
             return keep;
           });
-          
+
           if (this.isOnline) {
-             const updates = { [`data/people/${name}`]: null };
-             if (this.isAdmin && this.claimedUsers[name]) { updates[`metadata/users/${name}`] = null; }
-             if (name === this.currentUser) { updates[`metadata/users/${name}`] = null; }
-             removedTxs.forEach(id => { updates[`data/transactions/${id}`] = null; });
-             this.updateRemote(updates);
+            const updates = { [`data/people/${name}`]: null };
+            if (this.isAdmin && this.claimedUsers[name]) { updates[`metadata/users/${name}`] = null; }
+            if (name === this.currentUser) { updates[`metadata/users/${name}`] = null; }
+            removedTxs.forEach(id => { updates[`data/transactions/${id}`] = null; });
+            this.updateRemote(updates);
           }
           this.saveData();
           if (name === this.currentUser) {
-              this.disconnectOnline(true);
+            this.disconnectOnline(true);
           } else {
-              this.addNotification(`${name} ha sido eliminado/a.`, 'success');
+            this.addNotification(`${name} ha sido eliminado/a.`, 'success');
           }
         }
       });
     },
-    startEditPerson(name) { 
+    startEditPerson(name) {
       if (this.isOnline && this.claimedUsers[name] && name !== this.currentUser && !this.isAdmin) {
-         return this.addNotification('Solo el propio usuario o el creador pueden cambiar este nombre.', 'warning');
+        return this.addNotification('Solo el propio usuario o el creador pueden cambiar este nombre.', 'warning');
       }
-      this.editingPerson.oldName = name; this.editingPerson.newName = name; 
+      this.editingPerson.oldName = name; this.editingPerson.newName = name;
     },
     cancelEditPerson() { this.editingPerson.oldName = null; this.editingPerson.newName = ''; },
     async savePersonName(oldName) {
@@ -716,43 +716,43 @@ Alpine.data('app', function () {
         if (tx.addedBy === oldName) { tx.addedBy = newName; changed = true; }
         if (changed) updatedTxs.push(tx);
       });
-      
+
       if (this.expenseForm.customSplit[oldName] !== undefined) {
-         this.expenseForm.customSplit[newName] = this.expenseForm.customSplit[oldName];
+        this.expenseForm.customSplit[newName] = this.expenseForm.customSplit[oldName];
       }
-      
+
       if (this.isOnline) {
-          const updates = { [`data/people/${oldName}`]: null, [`data/people/${newName}`]: true };
-          if (this.claimedUsers[oldName]) { 
-             updates[`metadata/users/${oldName}`] = null; 
-             updates[`metadata/users/${newName}`] = true; 
-             updates[`metadata/renames/${oldName}`] = newName;
-          }
-          updatedTxs.forEach(tx => { updates[`data/transactions/${tx.id}`] = tx; });
-          
-          if (this.eventCreator === oldName) {
-              updates[`metadata/creator`] = newName;
-              this.eventCreator = newName;
-          }
+        const updates = { [`data/people/${oldName}`]: null, [`data/people/${newName}`]: true };
+        if (this.claimedUsers[oldName]) {
+          updates[`metadata/users/${oldName}`] = null;
+          updates[`metadata/users/${newName}`] = true;
+          updates[`metadata/renames/${oldName}`] = newName;
+        }
+        updatedTxs.forEach(tx => { updates[`data/transactions/${tx.id}`] = tx; });
 
-          if (this.currentUser === oldName) { 
-              this.currentUser = newName; 
-              localStorage.setItem('dvdr_last_user_' + this.eventId, newName);
-              if (db && this.isFirebaseConnected) {
-                   const oldPresenceRef = ref(db, `events/${this.eventId}/presence/${oldName}`);
-                   await onDisconnect(oldPresenceRef).cancel();
-                   await remove(oldPresenceRef);
-                   
-                   const newPresenceRef = ref(db, `events/${this.eventId}/presence/${newName}`);
-                   await onDisconnect(newPresenceRef).remove();
-                   set(newPresenceRef, true);
-              }
-          } else if (db && this.isFirebaseConnected) {
-              // Limpiar presencia vieja del usuario renombrado
-              remove(ref(db, `events/${this.eventId}/presence/${oldName}`));
-          }
+        if (this.eventCreator === oldName) {
+          updates[`metadata/creator`] = newName;
+          this.eventCreator = newName;
+        }
 
-          this.updateRemote(updates);
+        if (this.currentUser === oldName) {
+          this.currentUser = newName;
+          localStorage.setItem('dvdr_last_user_' + this.eventId, newName);
+          if (db && this.isFirebaseConnected) {
+            const oldPresenceRef = ref(db, `events/${this.eventId}/presence/${oldName}`);
+            await onDisconnect(oldPresenceRef).cancel();
+            await remove(oldPresenceRef);
+
+            const newPresenceRef = ref(db, `events/${this.eventId}/presence/${newName}`);
+            await onDisconnect(newPresenceRef).remove();
+            set(newPresenceRef, true);
+          }
+        } else if (db && this.isFirebaseConnected) {
+          // Limpiar presencia vieja del usuario renombrado
+          remove(ref(db, `events/${this.eventId}/presence/${oldName}`));
+        }
+
+        this.updateRemote(updates);
       }
       this.saveData();
       this.cancelEditPerson();
@@ -790,8 +790,8 @@ Alpine.data('app', function () {
       if (this.editingTransactionId) {
         const txIndex = this.transactions.findIndex(t => t.id === this.editingTransactionId);
         if (txIndex > -1) {
-           this.transactions[txIndex] = { ...this.transactions[txIndex], description, amount, payer, shares };
-           if (this.isOnline) { this.updateRemote({ [`data/transactions/${this.editingTransactionId}`]: this.transactions[txIndex] }); }
+          this.transactions[txIndex] = { ...this.transactions[txIndex], description, amount, payer, shares };
+          if (this.isOnline) { this.updateRemote({ [`data/transactions/${this.editingTransactionId}`]: this.transactions[txIndex] }); }
         }
         this.cancelEditTransaction();
       } else {
@@ -811,8 +811,8 @@ Alpine.data('app', function () {
       if (this.editingTransactionId) {
         const txIndex = this.transactions.findIndex(t => t.id === this.editingTransactionId);
         if (txIndex > -1) {
-           this.transactions[txIndex] = { ...this.transactions[txIndex], ...newTxData };
-           if (this.isOnline) { this.updateRemote({ [`data/transactions/${this.editingTransactionId}`]: this.transactions[txIndex] }); }
+          this.transactions[txIndex] = { ...this.transactions[txIndex], ...newTxData };
+          if (this.isOnline) { this.updateRemote({ [`data/transactions/${this.editingTransactionId}`]: this.transactions[txIndex] }); }
         }
         this.cancelEditTransaction();
       } else {
@@ -842,8 +842,8 @@ Alpine.data('app', function () {
       if (this.editingTransactionId) {
         const txIndex = this.transactions.findIndex(t => t.id === this.editingTransactionId);
         if (txIndex > -1) {
-           this.transactions[txIndex] = { ...this.transactions[txIndex], ...newTxData };
-           if (this.isOnline) { this.updateRemote({ [`data/transactions/${this.editingTransactionId}`]: this.transactions[txIndex] }); }
+          this.transactions[txIndex] = { ...this.transactions[txIndex], ...newTxData };
+          if (this.isOnline) { this.updateRemote({ [`data/transactions/${this.editingTransactionId}`]: this.transactions[txIndex] }); }
         }
         this.cancelEditTransaction();
       } else {
