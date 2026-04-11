@@ -375,7 +375,7 @@ Alpine.data('app', function () {
         sessionStorage.setItem('dvdr_rooms_created', String(created + 1));
         this.joinEventId = eventId;
         this.createEventName = '';
-
+        this.isJoining = false;
         await this.enterEvent();
       } catch (e) {
         this.addNotification('Error al crear evento', 'error');
