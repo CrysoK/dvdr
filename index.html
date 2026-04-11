@@ -429,8 +429,7 @@
                 </div>
                 <div class="card" x-show="isOnline && isAdmin">
                     <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                        <button @click="deleteOnlineEvent" class="danger">🗑️ Eliminar evento online para
-                            siempre</button>
+                        <button @click="deleteOnlineEvent" class="danger">🗑️ Eliminar evento online</button>
                     </div>
                 </div>
             </div>
@@ -473,7 +472,7 @@
                     @click="onlineTab = 'create'">Crear</button>
             </div>
 
-            <div x-show="onlineTab==='join'" style="margin-top: 1.5rem;">
+            <form x-show="onlineTab==='join'" @submit.prevent="enterEvent" style="margin-top: 1.5rem;">
                 <div class="form-group">
                     <label>Código:</label>
                     <input type="text" x-model="joinEventId" placeholder="Ej: ABCD12"
@@ -481,27 +480,26 @@
                 </div>
                 <div class="form-group">
                     <label>¿Cuál es tu nombre?</label>
-                    <input type="text" x-model="newUserName" placeholder="Ej: Carlos" @keydown.enter="enterEvent">
+                    <input type="text" x-model="newUserName" placeholder="Ej: Carlos">
                 </div>
-                <button @click="enterEvent" style="width: 100%;" :disabled="isJoining">
+                <button type="submit" style="width: 100%;" :disabled="isJoining">
                     <span x-text="isJoining ? 'Conectando...' : 'Entrar a la Sala'"></span>
                 </button>
-            </div>
+            </form>
 
-            <div x-show="onlineTab==='create'" style="margin-top: 1.5rem;">
+            <form x-show="onlineTab==='create'" @submit.prevent="createEvent" style="margin-top: 1.5rem;">
                 <div class="form-group">
                     <label>Nombre del evento:</label>
-                    <input type="text" x-model="createEventName" placeholder="Ej: Cumple de Mati"
-                        @keydown.enter="createEvent">
+                    <input type="text" x-model="createEventName" placeholder="Ej: Cumple de Mati">
                 </div>
                 <div class="form-group">
                     <label>¿Cuál es tu nombre?</label>
-                    <input type="text" x-model="newUserName" placeholder="Ej: Pedro" @keydown.enter="createEvent">
+                    <input type="text" x-model="newUserName" placeholder="Ej: Pedro">
                 </div>
-                <button @click="createEvent" style="width: 100%;" class="primary" :disabled="isJoining">
+                <button type="submit" style="width: 100%;" class="primary" :disabled="isJoining">
                     <span x-text="isJoining ? 'Creando...' : 'Generar y Entrar'"></span>
                 </button>
-            </div>
+            </form>
         </div>
     </div>
 
