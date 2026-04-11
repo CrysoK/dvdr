@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dvdr-cache-v1.4.0';
+const CACHE_NAME = 'dvdr-cache-v2.0.0';
 const urlsToCache = [
   // Archivos principales
   '/',
