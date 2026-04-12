@@ -710,6 +710,12 @@
                         </button>
                     </div>
                 </div>
+                <div class="mobile-version-info" x-show="isMobile && mobileTab === 'mas'">
+                    <p>
+                        DVDr v<span x-text="version"></span> •
+                        <button @click="openChangelog" class="link-btn">Novedades</button>
+                    </p>
+                </div>
             </div>
         </div>
 
