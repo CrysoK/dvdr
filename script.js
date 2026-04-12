@@ -66,6 +66,7 @@ Alpine.data('app', function () {
     isFirebaseConnected: true,
     confirmedAdmin: false,
     onlinePresence: {},
+    eventRenames: {},
     _firebaseUnsubs: [],
     isJoining: false,
     get isAdmin() {
@@ -435,12 +436,24 @@ Alpine.data('app', function () {
       let userName = this.newUserName;
 
       try {
-        const snap = await get(ref(db, `events/${eventId}/metadata`));
-        if (snap.exists()) {
+        const [metaSnap, peopleSnap] = await Promise.all([
+          get(ref(db, `events/${eventId}/metadata`)),
+          get(ref(db, `events/${eventId}/data/people`))
+        ]);
+
+        if (metaSnap.exists()) {
           // Limpiar listeners anteriores si había una sesión previa
           this._cleanupFirebaseListeners();
 
-          const metadata = snap.val();
+          const metadata = metaSnap.val();
+          const peopleData = peopleSnap.val() || {};
+          const peopleList = Array.isArray(peopleData) ? peopleData : Object.keys(peopleData);
+
+          // Normalizar nombre del usuario: Priorizar capitalización de slot existente
+          const matchingPerson = peopleList.find(p => p.toLowerCase() === userName.toLowerCase());
+          if (matchingPerson) {
+            userName = matchingPerson;
+          }
 
           // Resolver rename pendiente (el usuario fue renombrado mientras estaba offline)
           const pendingRenames = metadata.renames || {};
@@ -494,19 +507,53 @@ Alpine.data('app', function () {
           set(myPresenceRef, true);
 
           let initialPresenceLoaded = false;
+          let presenceBuffer = { connected: [], disconnected: [] };
+          let presenceTimeout = null;
+
           this._firebaseUnsubs.push(onValue(ref(db, `events/${eventId}/presence`), (res) => {
             const newPresence = res.exists() ? res.val() : {};
             if (initialPresenceLoaded) {
-              Object.keys(newPresence).forEach(u => {
-                if (!this.onlinePresence[u] && u !== this.currentUser) {
-                  this.addNotification(`${u} se ha conectado`, 'info', 2000);
-                }
-              });
-              Object.keys(this.onlinePresence).forEach(u => {
-                if (!newPresence[u] && u !== this.currentUser) {
-                  this.addNotification(`${u} se ha desconectado`, 'info', 2000);
-                }
-              });
+              const connected = Object.keys(newPresence).filter(u => !this.onlinePresence[u] && u !== this.currentUser);
+              const disconnected = Object.keys(this.onlinePresence).filter(u => !newPresence[u] && u !== this.currentUser);
+
+              if (connected.length > 0 || disconnected.length > 0) {
+                presenceBuffer.connected.push(...connected);
+                presenceBuffer.disconnected.push(...disconnected);
+
+                if (presenceTimeout) clearTimeout(presenceTimeout);
+
+                presenceTimeout = setTimeout(() => {
+                  const conns = [...new Set(presenceBuffer.connected)];
+                  let disconns = [...new Set(presenceBuffer.disconnected)];
+                  const renames = this.eventRenames || {};
+
+                  // Revisamos los conectados para ver si coinciden con un cambio de nombre
+                  conns.forEach(c => {
+                    const oldName = Object.keys(renames).find(k => renames[k] === c);
+                    if (oldName && disconns.includes(oldName)) {
+                      // Es un cambio de nombre (se desconectó el viejo y se conectó el nuevo)
+                      this.addNotification(`${oldName} cambió su nombre a ${c}`, 'info', 3000);
+                      disconns = disconns.filter(d => d !== oldName); // Quitamos el aviso de desconexión
+                      delete this.eventRenames[oldName]; // Limpiamos para evitar conflictos futuros
+                    } else {
+                      this.addNotification(`${c} se ha conectado`, 'info', 2000);
+                    }
+                  });
+
+                  // Avisamos de los desconectados reales restantes
+                  disconns.forEach(d => {
+                    if (renames[d] === this.currentUser) {
+                      // Si el admin cambió mi nombre, ignoro que mi nombre viejo se desconectó
+                      delete this.eventRenames[d];
+                    } else {
+                      this.addNotification(`${d} se ha desconectado`, 'info', 2000);
+                    }
+                  });
+
+                  // Vaciamos el búfer
+                  presenceBuffer = { connected: [], disconnected: [] };
+                }, 800); // 800ms de ventana para emparejar eventos simultáneos
+              }
             }
             this.onlinePresence = newPresence;
             initialPresenceLoaded = true;
@@ -521,6 +568,9 @@ Alpine.data('app', function () {
               this.eventName = md.name;
               this.claimedUsers = md.users || {};
               const renames = md.renames || {};
+
+              // Almacenamos temporalmente los nombres cambiados para la lógica de presencia
+              this.eventRenames = { ...(this.eventRenames || {}), ...renames };
 
               if (this.isOnline && this.currentUser && this.claimedUsers && !this.claimedUsers[this.currentUser]) {
                 if (renames[this.currentUser]) {
@@ -592,6 +642,7 @@ Alpine.data('app', function () {
         this.eventCreator = null;
         this.confirmedAdmin = false;
         this.onlinePresence = {};
+        this.eventRenames = {};
         window.history.pushState({}, '', window.location.pathname);
         document.title = 'DVDr - Calculadora de gastos compartidos';
         this.loadData();
@@ -773,7 +824,10 @@ Alpine.data('app', function () {
       let newName = this.editingPerson.newName.trim();
       newName = newName.replace(/[.#$\[\]]/g, '').substring(0, 30);
       if (!newName || newName === oldName) { this.cancelEditPerson(); return; }
-      if (this.people.includes(newName)) { this.addNotification('Este nombre ya existe.', 'warning'); return; }
+      if (this.people.find(p => p.toLowerCase() === newName.toLowerCase() && p !== oldName)) {
+        this.addNotification('Este nombre ya existe.', 'warning');
+        return;
+      }
 
       this.people = this.people.map(p => p === oldName ? newName : p);
 
