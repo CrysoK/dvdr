@@ -461,7 +461,7 @@ Alpine.data('app', function () {
           this.currentUser = userName;
           this.showOnlineModal = false;
           window.history.pushState({}, '', `?e=${eventId}`);
-          document.title = `DVDr - Sala ${eventId}`;
+          document.title = `DVDr - ${metadata.name} (${eventId})`;
 
           localStorage.setItem('dvdr_last_user_' + eventId, userName);
 

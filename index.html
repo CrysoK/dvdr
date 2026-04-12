@@ -255,7 +255,7 @@
                     <template x-if="isOnline && isFirebaseConnected">
                         <span><svg class="icon" aria-hidden="true">
                                 <use href="#icon-check-circle" />
-                            </svg> Sala: <span x-text="eventId"></span> <template x-if="isAdmin"><svg class="icon"
+                            </svg> <span x-text="eventName"></span> (<span x-text="eventId"></span>) <template x-if="isAdmin"><svg class="icon"
                                     style="width:14px;height:14px;color:currentColor;" aria-hidden="true">
                                     <use href="#icon-crown" />
                                 </svg></template></span>
@@ -263,7 +263,7 @@
                     <template x-if="isOnline && !isFirebaseConnected">
                         <span><svg class="icon" aria-hidden="true">
                                 <use href="#icon-hourglass" />
-                            </svg> Reconectando: <span x-text="eventId"></span>...</span>
+                            </svg> Reconectando: <span x-text="eventName"></span>...</span>
                     </template>
                 </button>
                 <button x-show="isOnline" @click="copyOnlineLink" class="secondary" title="Copiar enlace de la sala"
