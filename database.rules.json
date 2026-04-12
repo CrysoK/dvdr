@@ -13,7 +13,7 @@
                 },
                 "adminToken": {
                     ".read": false,
-                    ".write": "auth != null && !data.exists()"
+                    ".write": "auth != null && (!data.exists() || (newData.val() === null && root.child('events/'+$eventId+'/metadata/creator_uid').val() === auth.uid))"
                 },
                 "data": {
                     ".read": "auth != null",

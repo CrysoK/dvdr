@@ -670,13 +670,9 @@ Alpine.data('app', function () {
         onConfirm: async () => {
           try {
             const eventId = this.eventId;
-            // Delete child nodes individually to comply with Firebase rules
-            // (adminToken has restrictive write rules that block full-node removal)
-            await Promise.all([
-              remove(ref(db, `events/${eventId}/metadata`)),
-              remove(ref(db, `events/${eventId}/data`)),
-              remove(ref(db, `events/${eventId}/presence`)),
-            ]);
+            // USAR BORRADO ATÓMICO: Borrar el nodo raíz de la sala en una sola operación.
+            // Esto evita condiciones de carrera entre las reglas de metadata y data.
+            await remove(ref(db, `events/${eventId}`));
             this.disconnectOnline(true);
             this.addNotification('Evento eliminado permanentemente.', 'success');
           } catch (e) {
