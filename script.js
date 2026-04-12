@@ -1,4 +1,5 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js';
+import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js';
 import { getDatabase, ref, set, get, onValue, remove, update, onDisconnect, query, orderByChild, endAt } from 'https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js';
 import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/module.esm.js';
 
@@ -14,10 +15,12 @@ const firebaseConfig = {
 };
 
 let db;
+let auth;
 let firebaseInitError = false;
 try {
   const app = initializeApp(firebaseConfig);
   db = getDatabase(app);
+  auth = getAuth(app);
 } catch (e) {
   console.warn("Firebase no está configurado.");
   firebaseInitError = true;
@@ -52,6 +55,7 @@ Alpine.data('app', function () {
 
   return {
     version: APP_VERSION,
+    uid: null,
     isOnline: false,
     eventId: null,
     eventName: '',
@@ -120,6 +124,13 @@ Alpine.data('app', function () {
       if (firebaseInitError) {
         this.addNotification('No se pudo conectar con Firebase. El modo online no estará disponible.', 'error', 6000);
       }
+      // Manejar Autenticación Silenciosa
+      if (auth) {
+        signInAnonymously(auth).catch(e => console.warn("Error de autenticación", e));
+        onAuthStateChanged(auth, (user) => {
+          this.uid = user ? user.uid : null;
+        });
+      }
       if (db) {
         onValue(ref(db, '.info/connected'), (snap) => {
           this.isFirebaseConnected = snap.val() === true;
@@ -129,7 +140,6 @@ Alpine.data('app', function () {
             set(myPresenceRef, true);
           }
         });
-        this.cleanupOldRooms();
       }
       // Mobile viewport detection
       const mq = window.matchMedia('(max-width: 991px)');
@@ -208,23 +218,6 @@ Alpine.data('app', function () {
         // Le dice al SW que tome el control. Esto disparará 'controllerchange' en index.html
         this.waitingWorker.postMessage({ type: 'SKIP_WAITING' });
       }
-    },
-    cleanupOldRooms() {
-      if (!db) return;
-      // Throttle: solo limpiar una vez por sesión
-      if (sessionStorage.getItem('dvdr_cleanup_done')) return;
-      sessionStorage.setItem('dvdr_cleanup_done', '1');
-      const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-      get(query(ref(db, 'events'), orderByChild('metadata/lastActive'), endAt(oneWeekAgo))).then(snap => {
-        if (snap.exists()) {
-          snap.forEach(child => {
-            const md = child.val().metadata;
-            if (md && md.lastActive && md.lastActive <= oneWeekAgo) {
-              remove(ref(db, `events/${child.key}`));
-            }
-          });
-        }
-      }).catch(e => console.warn("Error cleaning old rooms", e));
     },
     async updateRemote(updates) {
       if (this.isOnline && db && this.eventId) {
@@ -402,18 +395,17 @@ Alpine.data('app', function () {
       // Rate limit: máximo 3 salas por sesión
       const created = parseInt(sessionStorage.getItem('dvdr_rooms_created') || '0');
       if (created >= 3) return this.addNotification('Has creado demasiadas salas en esta sesión. Recarga la página si necesitas crear más.', 'warning');
+      // Validación extra: Esperar inicio de sesión
+      if (!this.uid) return this.addNotification('Conectando de forma segura, intenta de nuevo...', 'warning');
       this.isJoining = true;
       const eventId = Math.random().toString(36).substring(2, 8).toUpperCase();
       try {
         const adminToken = Math.random().toString(36).substring(2, 15);
         const userName = this.newUserName;
-        await set(ref(db, `events/${eventId}/metadata`), { name: this.createEventName, creator: userName, createdAt: Date.now(), lastActive: Date.now() });
-        await set(ref(db, `events/${eventId}/adminToken`), { token: adminToken });
+        // Inyectamos el creator_uid de Firebase Auth
+        await set(ref(db, `events/${eventId}/metadata`), { name: this.createEventName, creator: userName, creator_uid: this.uid, createdAt: Date.now(), lastActive: Date.now() });
         await update(ref(db, `events/${eventId}/metadata/users`), { [userName]: true });
         await set(ref(db, `events/${eventId}/data/people`), { [userName]: true });
-        const myAdminKeys = JSON.parse(localStorage.getItem('dvdr_admin_keys') || '{}');
-        myAdminKeys[eventId] = adminToken;
-        localStorage.setItem('dvdr_admin_keys', JSON.stringify(myAdminKeys));
         sessionStorage.setItem('dvdr_rooms_created', String(created + 1));
         this.joinEventId = eventId;
         this.createEventName = '';
@@ -481,9 +473,19 @@ Alpine.data('app', function () {
           this.people = [];
           this.transactions = [];
 
-          // Verify admin: el token ya no es legible por rules, solo validamos con clave local
-          const myAdminKeys = JSON.parse(localStorage.getItem('dvdr_admin_keys') || '{}');
-          this.confirmedAdmin = !!myAdminKeys[eventId];
+          const oldAdminKeys = JSON.parse(localStorage.getItem('dvdr_admin_keys') || '{}');
+          if (metadata.creator_uid === this.uid) {
+            // El usuario actual es el creador verificado por el backend
+            this.confirmedAdmin = true;
+          } else if (!metadata.creator_uid && oldAdminKeys[eventId]) {
+            // MIGRACIÓN: Es una sala antigua y el usuario tiene el token heredado.
+            // Le otorgamos admin y actualizamos la sala para que desde ahora use el sistema seguro.
+            this.confirmedAdmin = true;
+            update(ref(db, `events/${eventId}/metadata`), { creator_uid: this.uid });
+          } else {
+            // Usuario normal
+            this.confirmedAdmin = false;
+          }
 
           // Registrar usuario y limpiar renames consumidos en una sola operación
           const userUpdates = { [userName]: true };

@@ -3,21 +3,24 @@
         "events": {
             "$eventId": {
                 "metadata": {
-                    ".read": true,
-                    ".write": true,
-                    ".validate": "newData.hasChildren(['name', 'creator', 'createdAt', 'lastActive'])"
+                    ".read": "auth != null",
+                    ".write": "auth != null && (!data.exists() || newData.exists() || data.child('creator_uid').val() === auth.uid)",
+                    ".validate": "newData.hasChildren(['name', 'creator', 'createdAt', 'lastActive'])",
+                    "creator_uid": {
+                        ".validate": "!data.exists() || data.val() === newData.val()"
+                    }
                 },
                 "adminToken": {
                     ".read": false,
-                    ".write": "!data.exists()"
+                    ".write": "auth != null && !data.exists()"
                 },
                 "data": {
-                    ".read": true,
-                    ".write": true
+                    ".read": "auth != null",
+                    ".write": "auth != null && (!data.exists() || newData.exists() || root.child('events/'+$eventId+'/metadata/creator_uid').val() === auth.uid)"
                 },
                 "presence": {
-                    ".read": true,
-                    ".write": true
+                    ".read": "auth != null",
+                    ".write": "auth != null"
                 }
             }
         }
