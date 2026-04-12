@@ -79,6 +79,9 @@ Alpine.data('app', function () {
     newPersonName: '',
     newHistoryName: '',
     activeTab: 'expense',
+    mobileTab: 'personas',
+    isMobile: false,
+    showMobileForm: false,
     notifications: [],
     changelog: {
       show: false,
@@ -114,6 +117,13 @@ Alpine.data('app', function () {
         });
         this.cleanupOldRooms();
       }
+      // Mobile viewport detection
+      const mq = window.matchMedia('(max-width: 991px)');
+      this.isMobile = mq.matches;
+      mq.addEventListener('change', (e) => {
+        this.isMobile = e.matches;
+        if (!e.matches) this.showMobileForm = false;
+      });
       this.loadData();
       const urlParams = new URLSearchParams(window.location.search);
       const eventIdFromUrl = urlParams.get('e');
@@ -765,8 +775,12 @@ Alpine.data('app', function () {
       this.saveData();
     },
     editTransaction(tx) {
-      const card = this.$el.closest('.main-grid').querySelector('.right-column .card');
-      if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (this.isMobile) {
+        this.showMobileForm = true;
+      } else {
+        const card = this.$el.closest('.main-grid').querySelector('.right-column .card');
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
       this.editingTransactionId = tx.id;
       this.activeTab = tx.type;
       if (tx.type === 'expense') { this.expenseForm = { description: tx.description, amount: tx.amount, payer: tx.payer, participants: tx.shares.map(s => s.person), splitType: 'equal', customSplit: {} }; }
@@ -802,6 +816,7 @@ Alpine.data('app', function () {
         this.resetForm('expenseForm');
       }
       this.saveData();
+      if (this.isMobile) { this.showMobileForm = false; this.mobileTab = 'historial'; }
     },
     _proceedWithAdjustment() {
       const { description, amount, beneficiary, contributors } = this.adjustmentForm;
@@ -823,6 +838,7 @@ Alpine.data('app', function () {
         this.resetForm('adjustmentForm');
       }
       this.saveData();
+      if (this.isMobile) { this.showMobileForm = false; this.mobileTab = 'historial'; }
     },
     addAdjustment() {
       const { beneficiary, contributors } = this.adjustmentForm;
@@ -854,12 +870,29 @@ Alpine.data('app', function () {
         this.resetForm('transferForm');
       }
       this.saveData();
+      if (this.isMobile) { this.showMobileForm = false; this.mobileTab = 'historial'; }
     },
 
     resetForm(formName) {
       if (formName === 'expenseForm') this.expenseForm = { description: '', amount: null, payer: '', participants: [...this.people], splitType: 'equal', customSplit: {} };
       else if (formName === 'adjustmentForm') this.adjustmentForm = { description: '', amount: null, beneficiary: '', contributors: [...this.people] };
       else if (formName === 'transferForm') this.transferForm = { from: '', to: '', amount: null };
+    },
+
+    // --- MÉTODOS MOBILE ---
+    setMobileTab(tab) {
+      this.mobileTab = tab;
+      this.showMobileForm = false;
+      this.$nextTick(() => {
+        document.querySelector('.mobile-scroll-area')?.scrollTo(0, 0);
+      });
+    },
+    toggleMobileForm() {
+      this.showMobileForm = !this.showMobileForm;
+    },
+    closeMobileForm() {
+      this.showMobileForm = false;
+      if (this.editingTransactionId) this.cancelEditTransaction();
     },
 
     async openChangelog() {
