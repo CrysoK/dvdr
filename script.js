@@ -401,7 +401,7 @@ Alpine.data('app', function () {
       if (!this.joinEventId || !this.newUserName) return this.addNotification('Rellena nombres válidos (sin . # $ [ ])', 'warning');
       this.isJoining = true;
       const eventId = this.joinEventId;
-      const userName = this.newUserName;
+      let userName = this.newUserName;
 
       try {
         const snap = await get(ref(db, `events/${eventId}/metadata`));
@@ -410,6 +410,19 @@ Alpine.data('app', function () {
           this._cleanupFirebaseListeners();
 
           const metadata = snap.val();
+
+          // Resolver rename pendiente (el usuario fue renombrado mientras estaba offline)
+          const pendingRenames = metadata.renames || {};
+          const originalName = userName;
+          let hops = 0;
+          while (pendingRenames[userName] && hops++ < 10) {
+            userName = pendingRenames[userName];
+          }
+          if (userName !== originalName) {
+            this.addNotification(`Tu nombre fue actualizado a "${userName}" mientras estabas desconectado.`, 'info');
+            this.newUserName = userName;
+          }
+
           this.eventCreator = metadata.creator;
           this.isOnline = true;
           this.eventId = eventId;
@@ -428,7 +441,21 @@ Alpine.data('app', function () {
           const myAdminKeys = JSON.parse(localStorage.getItem('dvdr_admin_keys') || '{}');
           this.confirmedAdmin = !!myAdminKeys[eventId];
 
-          await update(ref(db, `events/${eventId}/metadata/users`), { [userName]: true });
+          // Registrar usuario y limpiar renames consumidos en una sola operación
+          const userUpdates = { [userName]: true };
+          if (userName !== originalName) { userUpdates[originalName] = null; }
+          await update(ref(db, `events/${eventId}/metadata/users`), userUpdates);
+          if (userName !== originalName) {
+            // Limpiar todas las entradas de rename de la cadena
+            const renameCleanup = {};
+            let cleanName = originalName;
+            let cleanHops = 0;
+            while (pendingRenames[cleanName] && cleanHops++ < 10) {
+              renameCleanup[cleanName] = null;
+              cleanName = pendingRenames[cleanName];
+            }
+            await update(ref(db, `events/${eventId}/metadata/renames`), renameCleanup);
+          }
 
           // Config presence
           const myPresenceRef = ref(db, `events/${eventId}/presence/${userName}`);
@@ -466,16 +493,18 @@ Alpine.data('app', function () {
 
               if (this.isOnline && this.currentUser && this.claimedUsers && !this.claimedUsers[this.currentUser]) {
                 if (renames[this.currentUser]) {
-                  const newName = renames[this.currentUser];
+                  const oldName = this.currentUser;
+                  const newName = renames[oldName];
                   this.addNotification(`Tu nombre fue actualizado a ${newName}`, 'info');
                   this.currentUser = newName;
                   localStorage.setItem('dvdr_last_user_' + this.eventId, newName);
 
-                  // Reconectar la presencia con el nuevo nombre
+                  // Reconectar la presencia con el nuevo nombre y limpiar rename consumido
                   if (db && this.isFirebaseConnected) {
                     const newPresenceRef = ref(db, `events/${this.eventId}/presence/${newName}`);
                     onDisconnect(newPresenceRef).remove();
                     set(newPresenceRef, true);
+                    update(ref(db, `events/${this.eventId}/metadata/renames`), { [oldName]: null });
                   }
                 } else {
                   this.addNotification('Fuiste expulsado de la sala.', 'error', 5000);
