@@ -35,6 +35,14 @@
     <link rel="shortcut icon" href="/icons/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-title" content="DVDr" />
+    <script>
+        // Anti-FOUC: apply theme before render
+        (function() {
+            var p = localStorage.getItem('dvdr_theme') || 'system';
+            var t = (p === 'system') ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : p;
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
     <link rel="stylesheet" href="style.css">
     <script type="module" src="script.js"></script>
 
@@ -422,6 +430,9 @@
 
                 <div class="card" x-show="(!isOnline || isAdmin) && (!isMobile || mobileTab === 'mas')">
                     <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <button @click="toggleTheme" class="secondary">
+                            <span x-text="{'system': '🖥️ Tema: Sistema', 'light': '☀️ Tema: Claro', 'dark': '🌙 Tema: Oscuro'}[themePreference]"></span>
+                        </button>
                         <button @click="loadDemoData" class="secondary">🪄 Cargar datos de demostración</button>
                         <button @click="clearCurrentDivision" class="secondary">Limpiar división actual</button>
                         <button @click="resetData" class="danger">Reiniciar todos los datos</button>
@@ -626,7 +637,8 @@
         <footer>
             <p>
                 DVDr v<span x-text="version"></span> •
-                <button @click="openChangelog" class="link-btn">Novedades</button>
+                <button @click="openChangelog" class="link-btn">Novedades</button> •
+                <button @click="toggleTheme" class="link-btn" x-text="{'system': '🖥️ Sistema', 'light': '☀️ Claro', 'dark': '🌙 Oscuro'}[themePreference]"></button>
             </p>
         </footer>
     </div>

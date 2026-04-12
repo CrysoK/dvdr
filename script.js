@@ -100,9 +100,22 @@ Alpine.data('app', function () {
     adjustmentForm: { description: '', amount: null, beneficiary: '', contributors: [], },
     transferForm: { from: '', to: '', amount: null, },
     waitingWorker: null,
+    themePreference: 'system', // 'system' | 'light' | 'dark'
+    get darkMode() {
+      if (this.themePreference === 'system') return window.matchMedia('(prefers-color-scheme: dark)').matches;
+      return this.themePreference === 'dark';
+    },
     hasUpdate: false,
 
     init() {
+      // Theme: load saved preference or default to 'system'
+      this.themePreference = localStorage.getItem('dvdr_theme') || 'system';
+      this._applyTheme();
+      // Listen for OS theme changes (relevant when preference is 'system')
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        if (this.themePreference === 'system') this._applyTheme();
+      });
+
       if (firebaseInitError) {
         this.addNotification('No se pudo conectar con Firebase. El modo online no estará disponible.', 'error', 6000);
       }
@@ -169,6 +182,24 @@ Alpine.data('app', function () {
           removed.forEach(p => { delete this.expenseForm.customSplit[p]; });
         }
       });
+    },
+    toggleTheme() {
+      const cycle = { system: 'light', light: 'dark', dark: 'system' };
+      this.themePreference = cycle[this.themePreference] || 'system';
+      if (this.themePreference === 'system') {
+        localStorage.removeItem('dvdr_theme');
+      } else {
+        localStorage.setItem('dvdr_theme', this.themePreference);
+      }
+      this._applyTheme();
+    },
+    _applyTheme() {
+      const isDark = this.darkMode;
+      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
+      if (metaTheme) {
+        metaTheme.setAttribute('content', isDark ? '#0f1923' : '#274768');
+      }
     },
     refreshApp() {
       this.addNotification('Actualizando aplicación...', 'info');
