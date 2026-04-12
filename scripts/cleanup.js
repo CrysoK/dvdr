@@ -32,7 +32,11 @@ async function cleanup() {
     console.log(`Se encontraron ${roomIds.length} salas antiguas.`);
 
     const deletePromises = roomIds.map(id => {
-      console.log(`Eliminando sala: ${id} (Última actividad: ${new Date(rooms[id].metadata.lastActive).toLocaleString()})`);
+      const room = rooms[id];
+      const lastActive = room.metadata ? room.metadata.lastActive : null;
+      const dateStr = lastActive ? new Date(lastActive).toLocaleString() : 'Desconocida';
+      
+      console.log(`Eliminando sala: ${id} (Última actividad: ${dateStr})`);
       return eventsRef.child(id).remove();
     });
 

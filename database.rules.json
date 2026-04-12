@@ -1,6 +1,7 @@
 {
     "rules": {
         "events": {
+            ".indexOn": ["metadata/lastActive"],
             "$eventId": {
                 "metadata": {
                     ".read": "auth != null",
