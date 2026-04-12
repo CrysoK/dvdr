@@ -27,7 +27,7 @@ try {
 }
 
 Alpine.data('app', function () {
-  const APP_VERSION = '2.1.0';
+  const APP_VERSION = '2.1.1';
   const STORAGE_KEY = 'dvd_data';
 
   const MIGRATIONS = {
