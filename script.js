@@ -977,6 +977,7 @@ Alpine.data('app', function () {
           tag: release.tag_name,
           date: new Date(release.created_at).toLocaleDateString(),
           name: release.name || release.tag_name,
+          type: this.getReleaseType(release.tag_name),
           body: this.formatReleaseBody(release.body)
         }));
         sessionStorage.setItem('dvdr_releases', JSON.stringify(this.changelog.data));
@@ -998,6 +999,15 @@ Alpine.data('app', function () {
         .replace(/\r\n/g, '<br>') // Line breaks
         .replace(/\n/g, '<br>'); // Line breaks
       return html;
+    },
+    getReleaseType(tag) {
+      const match = tag.match(/v?(\d+)\.(\d+)(?:\.(\d+))?/);
+      if (!match) return 'patch';
+      const minor = parseInt(match[2]);
+      const patch = match[3] ? parseInt(match[3]) : 0;
+      if (patch > 0) return 'patch';
+      if (minor > 0) return 'minor';
+      return 'major';
     },
     closeChangelog() {
       this.changelog.show = false;
