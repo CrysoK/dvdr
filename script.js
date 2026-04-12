@@ -375,7 +375,7 @@ Alpine.data('app', function () {
         this.newHistoryName = '';
         this.cancelEditTransaction();
         this.saveData();
-        this.addNotification('⚡ Datos de demostración cargados.', 'success');
+        this.addNotification('Datos de demostración cargados.', 'success');
       };
       if (this.people.length > 0 || this.transactions.length > 0) {
         this.askConfirm({
@@ -461,7 +461,7 @@ Alpine.data('app', function () {
           this.currentUser = userName;
           this.showOnlineModal = false;
           window.history.pushState({}, '', `?e=${eventId}`);
-          document.title = `Dvdr - Sala ${eventId}`;
+          document.title = `DVDr - Sala ${eventId}`;
 
           localStorage.setItem('dvdr_last_user_' + eventId, userName);
 
@@ -564,7 +564,7 @@ Alpine.data('app', function () {
             }
           }, 800);
 
-          this.addNotification('Conectado a la sala compartida 🟢', 'success');
+          this.addNotification('Conectado a la sala compartida.', 'success');
         } else {
           this.addNotification('El código no existe', 'warning');
         }
@@ -595,7 +595,7 @@ Alpine.data('app', function () {
         window.history.pushState({}, '', window.location.pathname);
         document.title = 'DVDr - Calculadora de gastos compartidos';
         this.loadData();
-        if (!forced) this.addNotification('Desconectado. 🔴 Modo local restaurado.', 'info');
+        if (!forced) this.addNotification('Desconectado. Modo local restaurado.', 'info');
       };
       if (forced) { exitLogic(); return; }
       this.askConfirm({

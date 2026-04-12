@@ -37,7 +37,7 @@
     <meta name="apple-mobile-web-app-title" content="DVDr" />
     <script>
         // Anti-FOUC: apply theme before render
-        (function() {
+        (function () {
             var p = localStorage.getItem('dvdr_theme') || 'system';
             var t = (p === 'system') ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : p;
             document.documentElement.setAttribute('data-theme', t);
@@ -49,6 +49,186 @@
 </head>
 
 <body x-data="app" x-cloak>
+    <!-- SVG Icon Sprite (Lucide-based, stroke="currentColor") -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+        <symbol id="icon-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </symbol>
+        <symbol id="icon-hourglass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 22h14" />
+            <path d="M5 2h14" />
+            <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" />
+            <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" />
+        </symbol>
+        <symbol id="icon-circle-dot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="3" />
+        </symbol>
+        <symbol id="icon-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="6" />
+        </symbol>
+        <symbol id="icon-circle-fill" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+            <circle cx="12" cy="12" r="6" />
+        </symbol>
+        <symbol id="icon-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+        </symbol>
+        <symbol id="icon-archive" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="5" rx="1" />
+            <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8" />
+            <path d="M10 12h4" />
+        </symbol>
+        <symbol id="icon-pen-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20h9" />
+            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+        </symbol>
+        <symbol id="icon-trash-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            <line x1="10" y1="11" x2="10" y2="17" />
+            <line x1="14" y1="11" x2="14" y2="17" />
+        </symbol>
+        <symbol id="icon-shopping-cart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="8" cy="21" r="1" />
+            <circle cx="19" cy="21" r="1" />
+            <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+        </symbol>
+        <symbol id="icon-award" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="6" />
+            <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
+        </symbol>
+        <symbol id="icon-arrow-right-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="21 7 3 7" />
+            <polyline points="6 10 3 7 6 4" />
+            <polyline points="3 17 21 17" />
+            <polyline points="18 20 21 17 18 14" />
+        </symbol>
+        <symbol id="icon-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+            <line x1="16" y1="2" x2="16" y2="6" />
+            <line x1="8" y1="2" x2="8" y2="6" />
+            <line x1="3" y1="10" x2="21" y2="10" />
+        </symbol>
+        <symbol id="icon-clipboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+        </symbol>
+        <symbol id="icon-folder-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path
+                d="m6 14 1.45-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.55 6a2 2 0 0 1-1.94 1.5H4a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H18a2 2 0 0 1 2 2v2" />
+        </symbol>
+        <symbol id="icon-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+        </symbol>
+        <symbol id="icon-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+        </symbol>
+        <symbol id="icon-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+        </symbol>
+        <symbol id="icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+        </symbol>
+        <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+        </symbol>
+        <symbol id="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="6" x2="20" y2="6" />
+            <line x1="4" y1="12" x2="20" y2="12" />
+            <line x1="4" y1="18" x2="20" y2="18" />
+        </symbol>
+        <symbol id="icon-monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+            <line x1="8" y1="21" x2="16" y2="21" />
+            <line x1="12" y1="17" x2="12" y2="21" />
+        </symbol>
+        <symbol id="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5" />
+            <line x1="12" y1="1" x2="12" y2="3" />
+            <line x1="12" y1="21" x2="12" y2="23" />
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+            <line x1="1" y1="12" x2="3" y2="12" />
+            <line x1="21" y1="12" x2="23" y2="12" />
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+        </symbol>
+        <symbol id="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </symbol>
+        <symbol id="icon-wand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 4V2" />
+            <path d="M15 16v-2" />
+            <path d="M8 9h2" />
+            <path d="M20 9h2" />
+            <path d="M17.8 11.8 19 13" />
+            <path d="M15 9h0" />
+            <path d="M17.8 6.2 19 5" />
+            <path d="m3 21 9-9" />
+            <path d="M12.2 6.2 11 5" />
+        </symbol>
+        <symbol id="icon-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path
+                d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+            <path d="M5 3v4" />
+            <path d="M19 17v4" />
+            <path d="M3 5h4" />
+            <path d="M17 19h4" />
+        </symbol>
+        <symbol id="icon-arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+        </symbol>
+        <symbol id="icon-clipboard-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+            <path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+            <path d="M16 4h2a2 2 0 0 1 2 2v4" />
+            <path d="M21 14H11" />
+            <path d="m15 10-4 4 4 4" />
+        </symbol>
+        <symbol id="icon-crown" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7z" />
+            <path d="M5 16h14v4H5z" />
+        </symbol>
+    </svg>
     <div class="container">
         <header class="header">
             <h1>
@@ -67,12 +247,30 @@
                 <button @click="isOnline ? disconnectOnline() : openOnlineModal()"
                     :style="isOnline ? 'background-color: var(--success-color); color: white;' : 'background-color: var(--card-bg); color: var(--text-color);'"
                     :disabled="!isOnline && !$store.__dbAvailable">
-                    <span
-                        x-text="isOnline ? (isFirebaseConnected ? '🟢 Sala: ' + eventId + (isAdmin ? ' 👑' : '') : '⏳ Reconectando: ' + eventId + '...') : '👤 Personal'"></span>
+                    <template x-if="!isOnline">
+                        <span><svg class="icon" aria-hidden="true">
+                                <use href="#icon-user" />
+                            </svg> Personal</span>
+                    </template>
+                    <template x-if="isOnline && isFirebaseConnected">
+                        <span><svg class="icon" aria-hidden="true">
+                                <use href="#icon-check-circle" />
+                            </svg> Sala: <span x-text="eventId"></span> <template x-if="isAdmin"><svg class="icon"
+                                    style="width:14px;height:14px;color:currentColor;" aria-hidden="true">
+                                    <use href="#icon-crown" />
+                                </svg></template></span>
+                    </template>
+                    <template x-if="isOnline && !isFirebaseConnected">
+                        <span><svg class="icon" aria-hidden="true">
+                                <use href="#icon-hourglass" />
+                            </svg> Reconectando: <span x-text="eventId"></span>...</span>
+                    </template>
                 </button>
                 <button x-show="isOnline" @click="copyOnlineLink" class="secondary" title="Copiar enlace de la sala"
                     style="background-color: var(--card-bg);">
-                    📋 Copiar enlace
+                    <svg class="icon" aria-hidden="true">
+                        <use href="#icon-clipboard-copy" />
+                    </svg> Copiar enlace
                 </button>
             </div>
         </header>
@@ -87,7 +285,9 @@
             <div class="left-column">
                 <!-- SECCIÓN PERSONAS -->
                 <div class="card" x-show="!isMobile || mobileTab === 'personas'">
-                    <h2 class="card-header"><span>👥</span> 1. Añade a las personas</h2>
+                    <h2 class="card-header"><svg class="icon icon-header" aria-hidden="true">
+                            <use href="#icon-users" />
+                        </svg> 1. Añade a las personas</h2>
                     <form @submit.prevent="addPerson" class="add-person-form">
                         <div class="form-group">
                             <label for="person-name">Nombre:</label>
@@ -109,14 +309,21 @@
                             <template x-for="person in people" :key="person">
                                 <div class="person-pill">
                                     <template x-if="editingPerson.oldName !== person">
-                                        <span>
+                                        <span style="display:inline-flex; align-items:center;">
                                             <span x-text="person === currentUser ? person + ' (Tú)' : person"
                                                 :style="person === currentUser ? 'font-weight:bold; color: var(--primary-color)' : ''"></span>
                                             <span x-show="isOnline && claimedUsers[person] && onlinePresence[person]"
-                                                title="En línea" style="font-size: 0.75em; margin-left: 2px;">🟢</span>
+                                                title="En línea"
+                                                style="display:inline-flex;align-items:center;margin-left:4px;color:var(--success-color);transform:translateY(-1px);"><svg
+                                                    class="icon" style="width:14px;height:14px;" aria-hidden="true">
+                                                    <use href="#icon-circle-fill" />
+                                                </svg></span>
                                             <span x-show="isOnline && claimedUsers[person] && !onlinePresence[person]"
                                                 title="Desconectado"
-                                                style="font-size: 0.75em; margin-left: 2px; filter: grayscale(1);">⚪</span>
+                                                style="display:inline-flex;align-items:center;margin-left:4px;color:var(--text-muted);transform:translateY(-1px);"><svg
+                                                    class="icon" style="width:14px;height:14px;" aria-hidden="true">
+                                                    <use href="#icon-circle-fill" />
+                                                </svg></span>
                                         </span>
                                     </template>
                                     <template x-if="editingPerson.oldName === person">
@@ -128,13 +335,20 @@
                                     </template>
                                     <button class="person-action-btn" @click="startEditPerson(person)"
                                         title="Editar nombre"
-                                        x-show="editingPerson.oldName !== person && !(isOnline && claimedUsers[person] && person !== currentUser && !isAdmin)">✏️</button>
+                                        x-show="editingPerson.oldName !== person && !(isOnline && claimedUsers[person] && person !== currentUser && !isAdmin)"><svg
+                                            class="icon" aria-hidden="true">
+                                            <use href="#icon-pen-line" />
+                                        </svg></button>
                                     <button class="person-action-btn" @click="copyPersonLink(person)"
                                         title="Copiar link de ingreso directo"
-                                        x-show="isOnline && !claimedUsers[person]">🔗</button>
+                                        x-show="isOnline && !claimedUsers[person]"><svg class="icon" aria-hidden="true">
+                                            <use href="#icon-link" />
+                                        </svg></button>
                                     <button @click="removePerson(person)" class="delete-person-btn"
                                         x-show="!(isOnline && claimedUsers[person] && person !== currentUser && !isAdmin)"
-                                        title="Eliminar persona">&times;</button>
+                                        title="Eliminar persona"><svg class="icon" aria-hidden="true">
+                                            <use href="#icon-x" />
+                                        </svg></button>
                                 </div>
                             </template>
                         </div>
@@ -143,7 +357,9 @@
 
                 <!-- SECCIÓN RESUMEN DEUDAS -->
                 <div class="card" x-show="!isMobile || mobileTab === 'balance'">
-                    <h2 class="card-header"><span>✅</span> Resumen de deudas</h2>
+                    <h2 class="card-header"><svg class="icon icon-header" aria-hidden="true">
+                            <use href="#icon-check-circle" />
+                        </svg> Resumen de deudas</h2>
                     <ul class="results-list">
                         <template x-if="simplifiedDebts.length === 0">
                             <li class="empty-state">No hay deudas pendientes.</li>
@@ -151,7 +367,10 @@
                         <template x-for="debt in simplifiedDebts" :key="`${debt.from}-${debt.to}`">
                             <li class="debt-item">
                                 <span x-text="debt.from"></span>
-                                <span class="debt-arrow">➔</span>
+                                <span class="debt-arrow"><svg class="icon" style="width:18px;height:18px;"
+                                        aria-hidden="true">
+                                        <use href="#icon-arrow-right" />
+                                    </svg></span>
                                 <span x-text="debt.to"></span>
                                 <span x-text="formatAmount(debt.amount)"></span>
                             </li>
@@ -166,7 +385,9 @@
 
                 <!-- SECCIÓN HISTORIAL DE DIVISIONES -->
                 <div class="card" x-show="!isMobile || mobileTab === 'mas'">
-                    <h2 class="card-header"><span>🗂️</span> Historial de divisiones</h2>
+                    <h2 class="card-header"><svg class="icon icon-header" aria-hidden="true">
+                            <use href="#icon-archive" />
+                        </svg> Historial de divisiones</h2>
                     <form @submit.prevent="saveToHistory" style="margin-bottom: 1.5rem;">
                         <div class="form-group">
                             <label for="history-name">Nombre de la división:</label>
@@ -183,7 +404,10 @@
                         </template>
                         <template x-for="item in history" :key="item.id">
                             <li>
-                                <div class="history-icon" style="color: var(--secondary-color);"><span>📂</span>
+                                <div class="history-icon" style="color: var(--secondary-color);"><svg class="icon"
+                                        aria-hidden="true">
+                                        <use href="#icon-folder-open" />
+                                    </svg>
                                 </div>
                                 <div class="history-details">
                                     <div class="description" x-text="item.name"></div>
@@ -195,9 +419,13 @@
                                     <button @click="loadFromHistory(item.id)" class="history-action-btn"
                                         :disabled="isOnline && !isAdmin && !item.eventId"
                                         :style="(isOnline && !isAdmin && !item.eventId) ? 'opacity: 0.5; cursor: not-allowed;' : ''"
-                                        title="Cargar">📥</button>
+                                        title="Cargar"><svg class="icon" aria-hidden="true">
+                                            <use href="#icon-download" />
+                                        </svg></button>
                                     <button @click="removeFromHistory(item.id)" class="history-action-btn delete"
-                                        title="Eliminar">🗑️</button>
+                                        title="Eliminar"><svg class="icon" aria-hidden="true">
+                                            <use href="#icon-trash-2" />
+                                        </svg></button>
                                 </div>
                             </li>
                         </template>
@@ -210,7 +438,9 @@
             <div class="right-column">
                 <!-- SECCIÓN TRANSACCIONES (inline en desktop, bottom sheet en móvil) -->
                 <div class="card" x-show="!isMobile && people.length > 1">
-                    <h2 class="card-header"><span>✍️</span> 2. Registra las transacciones</h2>
+                    <h2 class="card-header"><svg class="icon icon-header" aria-hidden="true">
+                            <use href="#icon-pen-line" />
+                        </svg> 2. Registra las transacciones</h2>
                     <!-- Pestañas -->
                     <div class="tabs">
                         <button class="tab-button" :class="{ 'active': activeTab === 'expense' }"
@@ -359,7 +589,9 @@
 
                 <!-- SECCIÓN HISTORIAL -->
                 <div class="card" x-show="!isMobile || mobileTab === 'historial'">
-                    <h2 class="card-header"><span>🗓️</span> Historial de transacciones</h2>
+                    <h2 class="card-header"><svg class="icon icon-header" aria-hidden="true">
+                            <use href="#icon-calendar" />
+                        </svg> Historial de transacciones</h2>
                     <ul class="history-list">
                         <template x-if="transactions.length === 0">
                             <li class="empty-state">No hay transacciones registradas.</li>
@@ -368,8 +600,15 @@
                             <li>
                                 <div class="history-icon"
                                     :style="{color: tx.type === 'expense' ? 'var(--primary-color)' : (tx.type === 'adjustment' ? 'var(--warning-color)' : 'var(--success-color)')}">
-                                    <span
-                                        x-text="tx.type === 'expense' ? '🛒' : (tx.type === 'adjustment' ? '🏆' : '💸')"></span>
+                                    <template x-if="tx.type === 'expense'"><svg class="icon" aria-hidden="true">
+                                            <use href="#icon-shopping-cart" />
+                                        </svg></template>
+                                    <template x-if="tx.type === 'adjustment'"><svg class="icon" aria-hidden="true">
+                                            <use href="#icon-award" />
+                                        </svg></template>
+                                    <template x-if="tx.type === 'transfer'"><svg class="icon" aria-hidden="true">
+                                            <use href="#icon-arrow-right-left" />
+                                        </svg></template>
                                 </div>
                                 <div class="history-details">
                                     <div class="description" x-text="tx.description"></div>
@@ -377,7 +616,11 @@
                                         x-show="isOnline && tx.addedBy">
                                         Añadido por <strong
                                             x-text="tx.addedBy === currentUser ? 'Ti' : tx.addedBy"></strong> <span
-                                            x-show="tx.addedBy === eventCreator" title="Creador">👑</span>
+                                            x-show="tx.addedBy === eventCreator" title="Creador"><svg class="icon"
+                                                style="width:12px;height:12px;color:var(--warning-color);vertical-align:middle;"
+                                                aria-hidden="true">
+                                                <use href="#icon-crown" />
+                                            </svg></span>
                                     </div>
                                     <template x-if="tx.type === 'expense'">
                                         <div class="metadata"><strong x-text="formatAmount(tx.amount)"></strong>
@@ -396,10 +639,14 @@
                                     </template>
                                 </div>
                                 <div class="history-actions">
-                                    <button @click="editTransaction(tx)" class="history-action-btn"
-                                        title="Editar">✏️</button>
+                                    <button @click="editTransaction(tx)" class="history-action-btn" title="Editar"><svg
+                                            class="icon" aria-hidden="true">
+                                            <use href="#icon-pen-line" />
+                                        </svg></button>
                                     <button @click="removeTransaction(tx.id)" class="history-action-btn delete"
-                                        title="Eliminar">🗑️</button>
+                                        title="Eliminar"><svg class="icon" aria-hidden="true">
+                                            <use href="#icon-trash-2" />
+                                        </svg></button>
                                 </div>
                             </li>
                         </template>
@@ -431,16 +678,36 @@
                 <div class="card" x-show="(!isOnline || isAdmin) && (!isMobile || mobileTab === 'mas')">
                     <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                         <button @click="toggleTheme" class="secondary">
-                            <span x-text="{'system': '🖥️ Tema: Sistema', 'light': '☀️ Tema: Claro', 'dark': '🌙 Tema: Oscuro'}[themePreference]"></span>
+                            <span>
+                                <template x-if="themePreference === 'system'"><svg class="icon" aria-hidden="true">
+                                        <use href="#icon-monitor" />
+                                    </svg></template>
+                                <template x-if="themePreference === 'light'"><svg class="icon" aria-hidden="true">
+                                        <use href="#icon-sun" />
+                                    </svg></template>
+                                <template x-if="themePreference === 'dark'"><svg class="icon" aria-hidden="true">
+                                        <use href="#icon-moon" />
+                                    </svg></template>
+                                <span
+                                    x-text="{'system': ' Tema: Sistema', 'light': ' Tema: Claro', 'dark': ' Tema: Oscuro'}[themePreference]"></span>
+                            </span>
                         </button>
-                        <button @click="loadDemoData" class="secondary">🪄 Cargar datos de demostración</button>
+                        <button @click="loadDemoData" class="secondary">
+                            <svg class="icon" aria-hidden="true">
+                                <use href="#icon-wand" />
+                            </svg> Cargar datos de demostración
+                        </button>
                         <button @click="clearCurrentDivision" class="secondary">Limpiar división actual</button>
                         <button @click="resetData" class="danger">Reiniciar todos los datos</button>
                     </div>
                 </div>
                 <div class="card" x-show="isOnline && isAdmin && (!isMobile || mobileTab === 'mas')">
                     <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                        <button @click="deleteOnlineEvent" class="danger">🗑️ Eliminar evento online</button>
+                        <button @click="deleteOnlineEvent" class="danger">
+                            <svg class="icon" aria-hidden="true">
+                                <use href="#icon-trash-2" />
+                            </svg> Eliminar evento online
+                        </button>
                     </div>
                 </div>
             </div>
@@ -448,20 +715,18 @@
 
         <!-- BOTTOM SHEET: Formulario de transacciones (móvil) -->
         <div class="sheet-overlay" x-show="isMobile && showMobileForm" x-cloak
-            x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0"
-            x-transition:leave="transition ease-in duration-150"
-            x-transition:leave-end="opacity-0"
+            x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
+            x-transition:leave="transition ease-in duration-150" x-transition:leave-end="opacity-0"
             @click.self="closeMobileForm()">
         </div>
         <div class="bottom-sheet" x-show="isMobile && showMobileForm" x-cloak
-            x-transition:enter="transition ease-out duration-300"
-            x-transition:enter-start="translate-y-full"
-            x-transition:leave="transition ease-in duration-200"
-            x-transition:leave-end="translate-y-full">
+            x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full"
+            x-transition:leave="transition ease-in duration-200" x-transition:leave-end="translate-y-full">
             <div class="sheet-handle" @click="closeMobileForm()"><span></span></div>
             <div class="sheet-content">
-                <h2 class="card-header"><span>✍️</span>
+                <h2 class="card-header"><svg class="icon icon-header" aria-hidden="true">
+                        <use href="#icon-pen-line" />
+                    </svg>
                     <span x-text="editingTransactionId ? 'Editar transacción' : 'Nueva transacción'"></span>
                 </h2>
                 <!-- Pestañas -->
@@ -614,23 +879,39 @@
         <!-- BOTTOM NAV (móvil) -->
         <nav class="bottom-nav" x-show="isMobile" x-cloak>
             <button @click="setMobileTab('personas')" :class="{'active': mobileTab === 'personas' && !showMobileForm}">
-                <span>👥</span><small>Personas</small>
+                <svg class="icon" aria-hidden="true">
+                    <use href="#icon-users" />
+                </svg><small>Personas</small>
             </button>
-            <button @click="setMobileTab('historial')" :class="{'active': mobileTab === 'historial' && !showMobileForm}">
-                <span>📋</span><small>Historial</small>
+            <button @click="setMobileTab('historial')"
+                :class="{'active': mobileTab === 'historial' && !showMobileForm}">
+                <svg class="icon" aria-hidden="true">
+                    <use href="#icon-clipboard" />
+                </svg><small>Historial</small>
             </button>
-            <button class="nav-action-btn" @click="toggleMobileForm()"
-                :class="{'active': showMobileForm}"
+            <button class="nav-action-btn" @click="toggleMobileForm()" :class="{'active': showMobileForm}"
                 x-show="people.length > 1">
-                <span class="nav-action-icon" :class="{'open': showMobileForm}"
-                    x-text="showMobileForm ? '✕' : '➕'"></span>
+                <span class="nav-action-icon" :class="{'open': showMobileForm}">
+                    <template x-if="!showMobileForm"><svg class="icon" style="width:22px;height:22px;"
+                            aria-hidden="true">
+                            <use href="#icon-plus" />
+                        </svg></template>
+                    <template x-if="showMobileForm"><svg class="icon" style="width:22px;height:22px;"
+                            aria-hidden="true">
+                            <use href="#icon-x" />
+                        </svg></template>
+                </span>
                 <small x-text="showMobileForm ? 'Cerrar' : 'Nuevo'"></small>
             </button>
             <button @click="setMobileTab('balance')" :class="{'active': mobileTab === 'balance' && !showMobileForm}">
-                <span>✅</span><small>Balance</small>
+                <svg class="icon" aria-hidden="true">
+                    <use href="#icon-check-circle" />
+                </svg><small>Balance</small>
             </button>
             <button @click="setMobileTab('mas')" :class="{'active': mobileTab === 'mas' && !showMobileForm}">
-                <span>☰</span><small>Más</small>
+                <svg class="icon" aria-hidden="true">
+                    <use href="#icon-menu" />
+                </svg><small>Más</small>
             </button>
         </nav>
 
@@ -638,7 +919,22 @@
             <p>
                 DVDr v<span x-text="version"></span> •
                 <button @click="openChangelog" class="link-btn">Novedades</button> •
-                <button @click="toggleTheme" class="link-btn" x-text="{'system': '🖥️ Sistema', 'light': '☀️ Claro', 'dark': '🌙 Oscuro'}[themePreference]"></button>
+                <button @click="toggleTheme" class="link-btn" style="text-decoration: none;">
+                    <template x-if="themePreference === 'system'"><svg class="icon" style="width:14px;height:14px;"
+                            aria-hidden="true">
+                            <use href="#icon-monitor" />
+                        </svg></template>
+                    <template x-if="themePreference === 'light'"><svg class="icon" style="width:14px;height:14px;"
+                            aria-hidden="true">
+                            <use href="#icon-sun" />
+                        </svg></template>
+                    <template x-if="themePreference === 'dark'"><svg class="icon" style="width:14px;height:14px;"
+                            aria-hidden="true">
+                            <use href="#icon-moon" />
+                        </svg></template>
+                    <span style="text-decoration: underline;"
+                        x-text="{'system': 'Sistema', 'light': 'Claro', 'dark': 'Oscuro'}[themePreference]"></span>
+                </button>
             </p>
         </footer>
     </div>
@@ -683,7 +979,7 @@
                     <input type="text" x-model="newUserName" placeholder="Ej: Carlos">
                 </div>
                 <button type="submit" style="width: 100%;" :disabled="isJoining">
-                    <span x-text="isJoining ? 'Conectando...' : 'Entrar a la Sala'"></span>
+                    <span x-text="isJoining ? 'Conectando...' : 'Entrar a la sala'"></span>
                 </button>
             </form>
 
@@ -759,7 +1055,11 @@
         x-transition:enter-start="opacity-0 translate-y-full" x-transition:enter-end="opacity-100 translate-y-0"
         x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0 translate-y-full">
         <div class="update-content">
-            <span>✨ Nueva versión disponible</span>
+            <span>
+                <svg class="icon" style="width:16px;height:16px;" aria-hidden="true">
+                    <use href="#icon-sparkles" />
+                </svg> Nueva versión disponible
+            </span>
             <button @click="refreshApp">Actualizar</button>
         </div>
     </div>
