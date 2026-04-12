@@ -223,30 +223,57 @@ body {
 }
 
 .header {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   margin-bottom: 2rem;
+  padding: 0.75rem 0;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .header h1 {
-  font-size: 2.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
   color: var(--primary-color);
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
+  margin: 0;
+  white-space: nowrap;
 }
 
 .app-logo {
-  width: 64px;
-  height: 64px;
+  width: 42px;
+  height: 42px;
   filter: drop-shadow(0 4px 6px rgba(39, 71, 104, 0.2));
 }
 
-.header p {
-  font-size: 1.1rem;
+.header-tagline {
+  font-size: 0.95rem;
   color: var(--text-muted);
-  margin-top: 0.5rem;
+  white-space: nowrap;
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header p {
+  display: none;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .main-grid {
@@ -1028,36 +1055,32 @@ footer {
 
   /* --- Header Compact --- */
   .header {
-    padding: 0.75rem 1rem;
+    padding: 1rem;
     margin-bottom: 0;
     flex-shrink: 0;
     border-bottom: 1px solid var(--border-color);
     background-color: var(--card-bg);
     z-index: 10;
-  }
-
-  .header h1 {
-    font-size: 1.5rem;
     gap: 0.5rem;
   }
 
+  .header h1 {
+    font-size: 1.25rem;
+    gap: 0.4rem;
+  }
+
   .app-logo {
-    width: 36px;
-    height: 36px;
+    width: 30px;
+    height: 30px;
   }
 
-  .header p {
-    font-size: 0.85rem;
-    margin-top: 0.25rem;
+  .header-tagline {
+    display: none;
   }
 
-  .header > div:last-child {
-    margin-top: 0.5rem;
-  }
-
-  .header > div:last-child button {
-    font-size: 0.85em;
-    padding: 0.5em 1em;
+  .header-actions button {
+    font-size: 0.8em;
+    padding: 0.45em 0.75em;
   }
 
   /* --- Main Content Area --- */
@@ -1092,7 +1115,7 @@ footer {
   }
 
   /* --- Footer hidden on mobile --- */
-  .container > footer {
+  .container>footer {
     display: none;
   }
 
@@ -1103,7 +1126,8 @@ footer {
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 3100; /* FIX #4: Above bottom sheet so X button is tappable */
+    z-index: 3100;
+    /* FIX #4: Above bottom sheet so X button is tappable */
     background-color: var(--card-bg);
     border-top: 1px solid var(--border-color);
     box-shadow: 0 -2px 12px rgba(39, 71, 104, 0.08);
@@ -1112,7 +1136,7 @@ footer {
     align-items: flex-end;
   }
 
-  .bottom-nav > button {
+  .bottom-nav>button {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -1131,21 +1155,21 @@ footer {
     position: relative;
   }
 
-  .bottom-nav > button:hover {
+  .bottom-nav>button:hover {
     filter: none;
   }
 
-  .bottom-nav > button small {
+  .bottom-nav>button small {
     font-size: 0.65rem;
     font-weight: 500;
     letter-spacing: 0.01em;
   }
 
-  .bottom-nav > button.active {
+  .bottom-nav>button.active {
     color: var(--primary-color);
   }
 
-  .bottom-nav > button.active::before {
+  .bottom-nav>button.active::before {
     content: '';
     position: absolute;
     top: 0;
@@ -1157,13 +1181,13 @@ footer {
   }
 
   /* --- Center Action Button --- */
-  .bottom-nav > .nav-action-btn {
+  .bottom-nav>.nav-action-btn {
     flex: 1.1;
     color: white;
     position: relative;
   }
 
-  .bottom-nav > .nav-action-btn .nav-action-icon {
+  .bottom-nav>.nav-action-btn .nav-action-icon {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1178,20 +1202,20 @@ footer {
     transition: all 0.25s ease;
   }
 
-  .bottom-nav > .nav-action-btn .nav-action-icon.open {
+  .bottom-nav>.nav-action-btn .nav-action-icon.open {
     background-color: var(--text-muted);
   }
 
-  .bottom-nav > .nav-action-btn small {
+  .bottom-nav>.nav-action-btn small {
     color: var(--text-muted);
     margin-top: 2px;
   }
 
-  .bottom-nav > .nav-action-btn.active small {
+  .bottom-nav>.nav-action-btn.active small {
     color: var(--primary-color);
   }
 
-  .bottom-nav > .nav-action-btn::before {
+  .bottom-nav>.nav-action-btn::before {
     display: none;
   }
 
