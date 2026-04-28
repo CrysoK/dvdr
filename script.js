@@ -73,6 +73,8 @@ Alpine.data('app', function () {
     eventRenames: {},
     _firebaseUnsubs: [],
     isJoining: false,
+    unclaimedPeople: [],
+    showManualName: false,
     get isAdmin() {
       if (!this.eventId || !this.isOnline) return false;
       return this.confirmedAdmin;
@@ -119,6 +121,29 @@ Alpine.data('app', function () {
       // Listen for OS theme changes (relevant when preference is 'system')
       window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
         if (this.themePreference === 'system') this._applyTheme();
+      });
+
+      this.$watch('joinEventId', async (val) => {
+        const id = val.trim().toUpperCase();
+        this.showManualName = false;
+        if (id.length === 6 && db) {
+          try {
+            const [metaSnap, peopleSnap] = await Promise.all([
+              get(ref(db, `events/${id}/metadata`)),
+              get(ref(db, `events/${id}/data/people`))
+            ]);
+            if (metaSnap.exists() && peopleSnap.exists()) {
+              const claimed = metaSnap.val().users || {};
+              const allPeople = peopleSnap.val() || {};
+              const peopleList = Array.isArray(allPeople) ? allPeople : Object.keys(allPeople);
+              this.unclaimedPeople = peopleList.filter(p => !claimed[p]);
+            } else {
+              this.unclaimedPeople = [];
+            }
+          } catch (e) { this.unclaimedPeople = []; }
+        } else {
+          this.unclaimedPeople = [];
+        }
       });
 
       if (firebaseInitError) {
@@ -780,21 +805,56 @@ Alpine.data('app', function () {
       }
       this.askConfirm({
         title: `Eliminar a ${name}`,
-        message: `¿Seguro que quieres eliminar a ${name}? Se borrarán todas sus transacciones asociadas.`,
+        message: `¿Seguro que quieres eliminar a ${name}? Los gastos que pagó se borrarán, pero donde solo participó se recalcularán entre el resto.`,
         confirmText: 'Eliminar',
         confirmClass: 'danger',
         onConfirm: async () => {
           const removedTxs = [];
+          const updatedTxs = [];
           this.people = this.people.filter(p => p !== name);
           this.transactions = this.transactions.filter(tx => {
             let keep = true;
-            switch (tx.type) {
-              case 'expense': keep = tx.payer !== name && !tx.shares.some(s => s.person === name); break;
-              case 'adjustment': keep = tx.beneficiary !== name && !tx.contributors.includes(name); break;
-              case 'transfer': keep = tx.from !== name && tx.to !== name; break;
-              default: keep = true;
+            let modified = false;
+            if (tx.type === 'expense') {
+              if (tx.payer === name) {
+                keep = false;
+              } else {
+                const shareIndex = tx.shares.findIndex(s => s.person === name);
+                if (shareIndex !== -1) {
+                  tx.shares.splice(shareIndex, 1);
+                  modified = true;
+                  if (tx.shares.length > 0) {
+                    const sumRemaining = tx.shares.reduce((sum, s) => sum + s.amount, 0);
+                    if (sumRemaining > 0) {
+                      tx.shares.forEach(s => { s.amount = (s.amount / sumRemaining) * tx.amount; });
+                    } else {
+                      const equalPart = tx.amount / tx.shares.length;
+                      tx.shares.forEach(s => { s.amount = equalPart; });
+                    }
+                  } else {
+                    keep = false;
+                  }
+                }
+              }
+            } else if (tx.type === 'adjustment') {
+              if (tx.beneficiary === name) {
+                keep = false;
+              } else {
+                const contIndex = tx.contributors.indexOf(name);
+                if (contIndex !== -1) {
+                  tx.contributors.splice(contIndex, 1);
+                  modified = true;
+                  if (tx.contributors.length === 0) keep = false;
+                }
+              }
+            } else if (tx.type === 'transfer') {
+              if (tx.from === name || tx.to === name) {
+                keep = false;
+              }
             }
+
             if (!keep) removedTxs.push(tx.id);
+            else if (modified) updatedTxs.push(tx);
             return keep;
           });
 
@@ -803,6 +863,7 @@ Alpine.data('app', function () {
             if (this.isAdmin && this.claimedUsers[name]) { updates[`metadata/users/${name}`] = null; }
             if (name === this.currentUser) { updates[`metadata/users/${name}`] = null; }
             removedTxs.forEach(id => { updates[`data/transactions/${id}`] = null; });
+            updatedTxs.forEach(tx => { updates[`data/transactions/${tx.id}`] = tx; });
             this.updateRemote(updates);
           }
           this.saveData();

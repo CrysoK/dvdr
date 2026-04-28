@@ -279,7 +279,7 @@
         <div class="main-grid" :style="isOnline && !isFirebaseConnected ? 'pointer-events: none; opacity: 0.6;' : ''">
             <!-- Banner de desconexión -->
             <div x-show="isOnline && !isFirebaseConnected"
-                style="background-color: var(--danger-color); color: white; padding: 10px; border-radius: 8px; text-align: center; grid-column: 1 / -1; margin-bottom: 1rem;">
+                style="background-color: var(--danger-color); color: white; padding: 10px; border-radius: 8px; text-align: center; grid-column: 1 / -1; margin-bottom: 0.5rem;">
                 <strong>Sin conexión al servidor</strong>. Reconectando...
             </div>
             <!-- COLUMNA IZQUIERDA: PERSONAS, DEUDAS E HISTORIAL -->
@@ -975,22 +975,44 @@
                     @click="onlineTab = 'create'">Crear</button>
             </div>
 
-            <form x-show="onlineTab==='join'" @submit.prevent="enterEvent" style="margin-top: 1.5rem;">
+            <form x-show="onlineTab==='join'" @submit.prevent="enterEvent" style="margin-top: 1rem;">
                 <div class="form-group">
-                    <label>Código:</label>
+                    <label>Código de la sala:</label>
                     <input type="text" x-model="joinEventId" placeholder="Ej: ABCD12"
-                        style="text-transform: uppercase;">
+                        style="text-transform: uppercase; font-weight: bold; letter-spacing: 2px; text-align: center; font-size: 1.2rem;">
                 </div>
-                <div class="form-group">
-                    <label>¿Cuál es tu nombre?</label>
-                    <input type="text" x-model="newUserName" placeholder="Ej: Carlos">
+
+                <div x-show="unclaimedPeople.length > 0" class="unclaimed-container">
+                    <label class="unclaimed-label">
+                        ¿Quién eres? Selecciona tu nombre:
+                    </label>
+                    <div class="unclaimed-list">
+                        <template x-for="p in unclaimedPeople" :key="p">
+                            <button type="button" class="unclaimed-pill" @click="newUserName = p; enterEvent();"
+                                style="font-size: 1.1rem; padding: 0.6rem 1.2rem;">
+                                <span x-text="p"></span>
+                            </button>
+                        </template>
+                    </div>
+                    <button type="button" @click="showManualName = !showManualName"
+                        style="margin-top: 1.5rem; background: none; border: none; color: var(--text-muted); font-size: 0.85rem; text-decoration: underline; padding: 0; cursor: pointer; width: 100%; text-align: center;">
+                        No estoy en la lista / Crear nuevo nombre
+                    </button>
                 </div>
-                <button type="submit" style="width: 100%;" :disabled="isJoining">
-                    <span x-text="isJoining ? 'Conectando...' : 'Entrar a la sala'"></span>
-                </button>
+
+                <div x-show="unclaimedPeople.length === 0 || showManualName" x-transition>
+                    <div class="form-group">
+                        <label>Escribe tu nombre:</label>
+                        <input type="text" x-model="newUserName" placeholder="Ej: Carlos"
+                            :required="unclaimedPeople.length === 0 || showManualName">
+                    </div>
+                    <button type="submit" style="width: 100%; margin-top: 1rem;" :disabled="isJoining">
+                        <span x-text="isJoining ? 'Conectando...' : 'Entrar a la sala'"></span>
+                    </button>
+                </div>
             </form>
 
-            <form x-show="onlineTab==='create'" @submit.prevent="createEvent" style="margin-top: 1.5rem;">
+            <form x-show="onlineTab==='create'" @submit.prevent="createEvent" style="margin-top: 1rem;">
                 <div class="form-group">
                     <label>Nombre del evento:</label>
                     <input type="text" x-model="createEventName" placeholder="Ej: Cumple de Mati">
