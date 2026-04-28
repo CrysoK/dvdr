@@ -28,11 +28,38 @@ try {
 
 Alpine.data('app', function () {
   const APP_VERSION = '2.1.2';
-  const STORAGE_KEY = 'dvd_data';
+  const STORAGE_KEY = 'dvdr_data';
 
   const MIGRATIONS = {
     '1.1.0': (data) => {
       if (!data.hasOwnProperty('history')) { data.history = []; }
+      return data;
+    },
+    '2.2.0': (data) => {
+      // Consolidar los datos dispersos en localStorage
+      const lastUsers = {};
+      const keysToRemove = [];
+
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key) continue;
+
+        if (key.startsWith('dvdr_last_user_')) {
+          const eventId = key.replace('dvdr_last_user_', '');
+          lastUsers[eventId] = localStorage.getItem(key);
+        }
+
+        // Limpiar solo claves conocidas de la app
+        if (key.startsWith('dvdr_') || key === 'dvd_data' || key === 'dvdr_admin_keys') {
+          if (key !== 'dvdr_theme' && key !== 'dvdr_data') {
+            keysToRemove.push(key);
+          }
+        }
+      }
+
+      data.lastUsers = lastUsers;
+
+      keysToRemove.forEach(k => localStorage.removeItem(k));
       return data;
     }
   };
@@ -43,6 +70,9 @@ Alpine.data('app', function () {
     if (!dataVersion) return currentData;
     const migrationTargets = Object.keys(MIGRATIONS).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
     for (const targetVersion of migrationTargets) {
+      // No ejecutar migraciones para versiones posteriores a la actual
+      if (targetVersion.localeCompare(APP_VERSION, undefined, { numeric: true }) > 0) continue;
+
       if (dataVersion.localeCompare(targetVersion, undefined, { numeric: true }) < 0) {
         currentData = MIGRATIONS[targetVersion](currentData);
         currentData.version = targetVersion;
@@ -75,6 +105,7 @@ Alpine.data('app', function () {
     isJoining: false,
     unclaimedPeople: [],
     showManualName: false,
+    lastUsers: {},
     get isAdmin() {
       if (!this.eventId || !this.isOnline) return false;
       return this.confirmedAdmin;
@@ -183,7 +214,7 @@ Alpine.data('app', function () {
           this.newUserName = decodeURIComponent(userFromUrl);
           this.$nextTick(() => this.enterEvent());
         } else {
-          const savedUser = localStorage.getItem('dvdr_last_user_' + this.joinEventId);
+          const savedUser = this.lastUsers[this.joinEventId];
           if (savedUser) {
             this.newUserName = savedUser;
             this.$nextTick(() => this.enterEvent());
@@ -251,17 +282,27 @@ Alpine.data('app', function () {
       }
     },
     saveData() {
-      const data = { version: this.version, people: this.people, transactions: this.transactions, history: this.history };
+      const data = {
+        version: this.version,
+        people: this.people,
+        transactions: this.transactions,
+        history: this.history,
+        lastUsers: this.lastUsers
+      };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     },
     loadData() {
-      let data = null;
+      let dataToLoad = null;
+      // 1. Intentar cargar estado desde la URL (Ej: Shared Link)
       if (window.location.hash) {
         try {
           const jsonData = decodeURIComponent(escape(atob(window.location.hash.substring(1))));
           const parsed = JSON.parse(jsonData);
-          if (parsed && parsed.version && Array.isArray(parsed.people)) data = parsed;
-          else this.addNotification("El enlace para compartir es de una versión antigua o está corrupto.", 'error', 5000);
+          if (parsed && parsed.version && Array.isArray(parsed.people)) {
+            dataToLoad = parsed;
+          } else {
+            this.addNotification("El enlace para compartir es de una versión antigua o está corrupto.", 'error', 5000);
+          }
         } catch (e) {
           console.error("Error al cargar datos desde la URL", e);
           this.addNotification("El enlace para compartir es inválido o está corrupto.", 'error', 5000);
@@ -269,26 +310,48 @@ Alpine.data('app', function () {
           history.pushState("", document.title, window.location.pathname);
         }
       }
-      if (!data) {
-        const savedData = localStorage.getItem(STORAGE_KEY);
-        if (savedData) {
-          try {
-            const parsed = JSON.parse(savedData);
-            if (parsed && parsed.version) data = parsed;
-          } catch (e) { console.error("Error al parsear datos de localStorage", e); localStorage.removeItem(STORAGE_KEY); }
+      // 2. Rescatar y preparar los datos locales
+      let localDataStr = localStorage.getItem(STORAGE_KEY);
+      if (!localDataStr) {
+        localDataStr = localStorage.getItem('dvd_data');
+      }
+      if (!localDataStr) {
+        // Generar un esqueleto si hay rastros viejos en localStorage que requieran migración
+        const hasOrphans = Object.keys(localStorage).some(k => k.startsWith('dvdr_last_user_') || k === 'dvdr_admin_keys');
+        if (hasOrphans) {
+          localDataStr = JSON.stringify({ version: '2.1.2', people: [], transactions: [], history: [] });
         }
       }
-      if (data) {
-        if (data.version.localeCompare(this.version, undefined, { numeric: true }) < 0) {
-          data = runMigrations(data);
-          this.addNotification(`¡DVDr actualizado a v${this.version}!`, 'success', 4000);
-          setTimeout(() => {
-            this.openChangelog();
-          }, 500);
+
+      let localData = null;
+      if (localDataStr) {
+        try {
+          localData = JSON.parse(localDataStr);
+          // Migrar inmediatamente si la versión local es menor
+          if (localData && localData.version.localeCompare(this.version, undefined, { numeric: true }) < 0) {
+            localData = runMigrations(localData);
+            if (!dataToLoad) { // Mostrar toast si no sobreescribimos desde URL
+              this.addNotification(`¡DVDr actualizado a v${this.version}!`, 'success', 4000);
+              setTimeout(() => { this.openChangelog(); }, 500);
+            }
+          }
+          // Siempre restaurar el estado persistente del usuario (sesiones previas)
+          this.lastUsers = localData.lastUsers || {};
+        } catch (e) {
+          console.error("Error al parsear datos de localStorage", e);
         }
-        this.people = data.people || [];
-        this.transactions = data.transactions || [];
-        this.history = data.history || [];
+      }
+      // 3. Determinar los datos finales (URL sobrescribe el estado del balance local, pero se mantienen configuraciones de usuario)
+      let finalData = dataToLoad || localData;
+
+      if (finalData) {
+        // Asegurar la migración en caso de que los datos vinieran puramente de un link antiguo
+        if (dataToLoad && dataToLoad.version.localeCompare(this.version, undefined, { numeric: true }) < 0) {
+          finalData = runMigrations(finalData);
+        }
+        this.people = finalData.people || [];
+        this.transactions = finalData.transactions || [];
+        this.history = finalData.history || [];
         this.saveData();
       }
     },
@@ -493,22 +556,15 @@ Alpine.data('app', function () {
           window.history.pushState({}, '', `?e=${eventId}`);
           document.title = `DVDr - ${metadata.name} - ${eventId}`;
 
-          localStorage.setItem('dvdr_last_user_' + eventId, userName);
+          this.lastUsers[eventId] = userName;
+          this.saveData();
 
           this.people = [];
           this.transactions = [];
 
-          const oldAdminKeys = JSON.parse(localStorage.getItem('dvdr_admin_keys') || '{}');
           if (metadata.creator_uid === this.uid) {
-            // El usuario actual es el creador verificado por el backend
             this.confirmedAdmin = true;
-          } else if (!metadata.creator_uid && oldAdminKeys[eventId]) {
-            // MIGRACIÓN: Es una sala antigua y el usuario tiene el token heredado.
-            // Le otorgamos admin y actualizamos la sala para que desde ahora use el sistema seguro.
-            this.confirmedAdmin = true;
-            update(ref(db, `events/${eventId}/metadata`), { creator_uid: this.uid });
           } else {
-            // Usuario normal
             this.confirmedAdmin = false;
           }
 
@@ -605,7 +661,8 @@ Alpine.data('app', function () {
                   const newName = renames[oldName];
                   this.addNotification(`Tu nombre fue actualizado a ${newName}`, 'info');
                   this.currentUser = newName;
-                  localStorage.setItem('dvdr_last_user_' + this.eventId, newName);
+                  this.lastUsers[this.eventId] = newName;
+                  this.saveData();
 
                   // Reconectar la presencia con el nuevo nombre y limpiar rename consumido
                   if (db && this.isFirebaseConnected) {
@@ -923,7 +980,7 @@ Alpine.data('app', function () {
 
         if (this.currentUser === oldName) {
           this.currentUser = newName;
-          localStorage.setItem('dvdr_last_user_' + this.eventId, newName);
+          this.lastUsers[this.eventId] = newName;
           if (db && this.isFirebaseConnected) {
             const oldPresenceRef = ref(db, `events/${this.eventId}/presence/${oldName}`);
             await onDisconnect(oldPresenceRef).cancel();
