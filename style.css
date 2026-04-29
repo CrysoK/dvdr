@@ -582,6 +582,31 @@ button.secondary:hover {
   margin: 0;
 }
 
+.scrollable-list {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  margin-right: -0.5rem; /* Compensate for padding to keep alignment */
+}
+
+/* Custom scrollbar for scrollable lists */
+.scrollable-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollable-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollable-list::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 10px;
+}
+
+.scrollable-list::-webkit-scrollbar-thumb:hover {
+  background-color: var(--secondary-color);
+}
+
 .results-list li {
   display: flex;
   flex-wrap: wrap;

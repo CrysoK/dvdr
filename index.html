@@ -402,38 +402,40 @@
                             :title="isOnline ? 'Se añadirá este evento compartido permanentemente a tus divisiones guardadas' : ''">Guardar
                             evento actual</button>
                     </form>
-                    <ul class="history-list">
-                        <template x-if="history.length === 0">
-                            <li class="empty-state">No hay divisiones guardadas.</li>
-                        </template>
-                        <template x-for="item in history" :key="item.id">
-                            <li>
-                                <div class="history-icon" style="color: var(--secondary-color);"><svg class="icon"
-                                        aria-hidden="true">
-                                        <use href="#icon-folder-open" />
-                                    </svg>
-                                </div>
-                                <div class="history-details">
-                                    <div class="description" x-text="item.name"></div>
-                                    <div class="metadata"
-                                        x-text="`${formatDate(item.date)} • ${item.data.people.length} personas • ${item.data.transactions.length} transacciones`">
+                    <div class="scrollable-list">
+                        <ul class="history-list">
+                            <template x-if="history.length === 0">
+                                <li class="empty-state">No hay divisiones guardadas.</li>
+                            </template>
+                            <template x-for="item in history" :key="item.id">
+                                <li>
+                                    <div class="history-icon" style="color: var(--secondary-color);"><svg class="icon"
+                                            aria-hidden="true">
+                                            <use href="#icon-folder-open" />
+                                        </svg>
                                     </div>
-                                </div>
-                                <div class="history-actions">
-                                    <button @click="loadFromHistory(item.id)" class="history-action-btn"
-                                        :disabled="isOnline && !isAdmin && !item.eventId"
-                                        :style="(isOnline && !isAdmin && !item.eventId) ? 'opacity: 0.5; cursor: not-allowed;' : ''"
-                                        title="Cargar"><svg class="icon" aria-hidden="true">
-                                            <use href="#icon-download" />
-                                        </svg></button>
-                                    <button @click="removeFromHistory(item.id)" class="history-action-btn delete"
-                                        title="Eliminar"><svg class="icon" aria-hidden="true">
-                                            <use href="#icon-trash-2" />
-                                        </svg></button>
-                                </div>
-                            </li>
-                        </template>
-                    </ul>
+                                    <div class="history-details">
+                                        <div class="description" x-text="item.name"></div>
+                                        <div class="metadata"
+                                            x-text="`${formatDate(item.date)} • ${item.data.people.length} personas • ${item.data.transactions.length} transacciones`">
+                                        </div>
+                                    </div>
+                                    <div class="history-actions">
+                                        <button @click="loadFromHistory(item.id)" class="history-action-btn"
+                                            :disabled="isOnline && !isAdmin && !item.eventId"
+                                            :style="(isOnline && !isAdmin && !item.eventId) ? 'opacity: 0.5; cursor: not-allowed;' : ''"
+                                            title="Cargar"><svg class="icon" aria-hidden="true">
+                                                <use href="#icon-download" />
+                                            </svg></button>
+                                        <button @click="removeFromHistory(item.id)" class="history-action-btn delete"
+                                            title="Eliminar"><svg class="icon" aria-hidden="true">
+                                                <use href="#icon-trash-2" />
+                                            </svg></button>
+                                    </div>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
                 </div>
 
             </div>
@@ -596,65 +598,67 @@
                     <h2 class="card-header"><svg class="icon icon-header" aria-hidden="true">
                             <use href="#icon-calendar" />
                         </svg> Historial de transacciones</h2>
-                    <ul class="history-list">
-                        <template x-if="transactions.length === 0">
-                            <li class="empty-state">No hay transacciones registradas.</li>
-                        </template>
-                        <template x-for="tx in transactions.slice().reverse()" :key="tx.id">
-                            <li>
-                                <div class="history-icon"
-                                    :style="{color: tx.type === 'expense' ? 'var(--primary-color)' : (tx.type === 'adjustment' ? 'var(--warning-color)' : 'var(--success-color)')}">
-                                    <template x-if="tx.type === 'expense'"><svg class="icon" aria-hidden="true">
-                                            <use href="#icon-shopping-cart" />
-                                        </svg></template>
-                                    <template x-if="tx.type === 'adjustment'"><svg class="icon" aria-hidden="true">
-                                            <use href="#icon-award" />
-                                        </svg></template>
-                                    <template x-if="tx.type === 'transfer'"><svg class="icon" aria-hidden="true">
-                                            <use href="#icon-arrow-right-left" />
-                                        </svg></template>
-                                </div>
-                                <div class="history-details">
-                                    <div class="description" x-text="tx.description"></div>
-                                    <div style="font-size:0.8rem; color:var(--secondary-color); margin-top:4px;"
-                                        x-show="isOnline && tx.addedBy">
-                                        Añadido por <strong
-                                            x-text="tx.addedBy === currentUser ? 'Ti' : tx.addedBy"></strong> <span
-                                            x-show="tx.addedBy === eventCreator" title="Creador"><svg class="icon"
-                                                style="width:12px;height:12px;color:var(--warning-color);vertical-align:middle;"
-                                                aria-hidden="true">
-                                                <use href="#icon-crown" />
-                                            </svg></span>
+                    <div :class="isMobile ? '' : 'scrollable-list'">
+                        <ul class="history-list">
+                            <template x-if="transactions.length === 0">
+                                <li class="empty-state">No hay transacciones registradas.</li>
+                            </template>
+                            <template x-for="tx in transactions.slice().reverse()" :key="tx.id">
+                                <li>
+                                    <div class="history-icon"
+                                        :style="{color: tx.type === 'expense' ? 'var(--primary-color)' : (tx.type === 'adjustment' ? 'var(--warning-color)' : 'var(--success-color)')}">
+                                        <template x-if="tx.type === 'expense'"><svg class="icon" aria-hidden="true">
+                                                <use href="#icon-shopping-cart" />
+                                            </svg></template>
+                                        <template x-if="tx.type === 'adjustment'"><svg class="icon" aria-hidden="true">
+                                                <use href="#icon-award" />
+                                            </svg></template>
+                                        <template x-if="tx.type === 'transfer'"><svg class="icon" aria-hidden="true">
+                                                <use href="#icon-arrow-right-left" />
+                                            </svg></template>
                                     </div>
-                                    <template x-if="tx.type === 'expense'">
-                                        <div class="metadata"><strong x-text="formatAmount(tx.amount)"></strong>
-                                            pagado por <strong x-text="tx.payer"></strong>. Dividido entre <span
-                                                x-text="tx.shares.map(s => s.person).join(', ')"></span>.</div>
-                                    </template>
-                                    <template x-if="tx.type === 'adjustment'">
-                                        <div class="metadata"><strong x-text="formatAmount(tx.amount)"></strong> a
-                                            favor de <strong x-text="tx.beneficiary"></strong>. Cubierto por <span
-                                                x-text="tx.contributors.join(', ')"></span>.</div>
-                                    </template>
-                                    <template x-if="tx.type === 'transfer'">
-                                        <div class="metadata"><strong x-text="formatAmount(tx.amount)"></strong> de
-                                            <strong x-text="tx.from"></strong> a <strong x-text="tx.to"></strong>.
+                                    <div class="history-details">
+                                        <div class="description" x-text="tx.description"></div>
+                                        <div style="font-size:0.8rem; color:var(--secondary-color); margin-top:4px;"
+                                            x-show="isOnline && tx.addedBy">
+                                            Añadido por <strong
+                                                x-text="tx.addedBy === currentUser ? 'Ti' : tx.addedBy"></strong> <span
+                                                x-show="tx.addedBy === eventCreator" title="Creador"><svg class="icon"
+                                                    style="width:12px;height:12px;color:var(--warning-color);vertical-align:middle;"
+                                                    aria-hidden="true">
+                                                    <use href="#icon-crown" />
+                                                </svg></span>
                                         </div>
-                                    </template>
-                                </div>
-                                <div class="history-actions">
-                                    <button @click="editTransaction(tx)" class="history-action-btn" title="Editar"><svg
-                                            class="icon" aria-hidden="true">
-                                            <use href="#icon-pen-line" />
-                                        </svg></button>
-                                    <button @click="removeTransaction(tx.id)" class="history-action-btn delete"
-                                        title="Eliminar"><svg class="icon" aria-hidden="true">
-                                            <use href="#icon-trash-2" />
-                                        </svg></button>
-                                </div>
-                            </li>
-                        </template>
-                    </ul>
+                                        <template x-if="tx.type === 'expense'">
+                                            <div class="metadata"><strong x-text="formatAmount(tx.amount)"></strong>
+                                                pagado por <strong x-text="tx.payer"></strong>. Dividido entre <span
+                                                    x-text="tx.shares.map(s => s.person).join(', ')"></span>.</div>
+                                        </template>
+                                        <template x-if="tx.type === 'adjustment'">
+                                            <div class="metadata"><strong x-text="formatAmount(tx.amount)"></strong> a
+                                                favor de <strong x-text="tx.beneficiary"></strong>. Cubierto por <span
+                                                    x-text="tx.contributors.join(', ')"></span>.</div>
+                                        </template>
+                                        <template x-if="tx.type === 'transfer'">
+                                            <div class="metadata"><strong x-text="formatAmount(tx.amount)"></strong> de
+                                                <strong x-text="tx.from"></strong> a <strong x-text="tx.to"></strong>.
+                                            </div>
+                                        </template>
+                                    </div>
+                                    <div class="history-actions">
+                                        <button @click="editTransaction(tx)" class="history-action-btn" title="Editar"><svg
+                                                class="icon" aria-hidden="true">
+                                                <use href="#icon-pen-line" />
+                                            </svg></button>
+                                        <button @click="removeTransaction(tx.id)" class="history-action-btn delete"
+                                            title="Eliminar"><svg class="icon" aria-hidden="true">
+                                                <use href="#icon-trash-2" />
+                                            </svg></button>
+                                    </div>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
                 </div>
 
                 <details x-show="!isMobile || mobileTab === 'balance'">
