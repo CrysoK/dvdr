@@ -377,10 +377,13 @@
                             </li>
                         </template>
                     </ul>
-                    <div id="share-section">
-                        <button @click="copyShortSummary" class="secondary">Copiar resumen</button>
-                        <button @click="copyDetailedSummary" class="secondary">Resumen detallado</button>
-                        <button @click="generateShareLink" class="secondary">Crear enlace</button>
+                    <div id="share-section" x-show="simplifiedDebts.length > 0">
+                        <p class="share-label">Copiar resultados:</p>
+                        <div class="share-buttons-group">
+                            <button @click="copyShortSummary" class="secondary">Resumen</button>
+                            <button @click="copyDetailedSummary" class="secondary">Detallado</button>
+                            <button @click="generateShareLink" class="secondary">Enlace</button>
+                        </div>
                     </div>
                 </div>
 
@@ -1006,8 +1009,7 @@
             <form x-show="onlineTab==='join'" @submit.prevent="enterEvent" style="margin-top: 1rem;">
                 <div class="form-group">
                     <label>Código de la sala:</label>
-                    <input type="text" x-model="joinEventId" placeholder="Ej: ABCD12"
-                        style="text-transform: uppercase; font-weight: bold; letter-spacing: 2px; text-align: center; font-size: 1.2rem;">
+                    <input type="text" x-model="joinEventId" placeholder="Ej: ABCD12">
                 </div>
 
                 <div x-show="unclaimedPeople.length > 0" class="unclaimed-container">
@@ -1050,7 +1052,7 @@
                     <input type="text" x-model="newUserName" placeholder="Ej: Pedro">
                 </div>
                 <button type="submit" style="width: 100%;" class="primary" :disabled="isJoining">
-                    <span x-text="isJoining ? 'Creando...' : 'Generar y Entrar'"></span>
+                    <span x-text="isJoining ? 'Creando...' : 'Generar y entrar'"></span>
                 </button>
             </form>
         </div>
@@ -1080,7 +1082,7 @@
                 <template x-for="release in changelog.data" :key="release.tag">
                     <div class="release-item" :class="'item-' + release.type">
                         <div class="release-header">
-                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+
                                 <span class="release-tag" x-text="release.tag"></span>
                                 <span class="release-badge" :class="'badge-' + release.type">
                                     <template x-if="release.type === 'major'">

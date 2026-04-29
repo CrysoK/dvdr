@@ -1311,7 +1311,7 @@ Alpine.data('app', function () {
 
     // --- SISTEMA DE MENSAJES ---
     addNotification(message, type = 'info', duration = 3500) {
-      const id = Date.now();
+      const id = Date.now() + Math.random();
       this.notifications.push({ id, message, type, visible: true });
       setTimeout(() => { this.removeNotification(id); }, duration);
     },
@@ -1332,37 +1332,96 @@ Alpine.data('app', function () {
     // --- HELPERS Y ACCIONES DE COPIADO ---
     formatAmount(amount) { return (amount || 0).toFixed(2); },
     formatDate(isoString) { return new Date(isoString).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }); },
+    getUniqueAbbreviations(names) {
+      const result = {};
+      for (let i = 0; i < names.length; i++) {
+        let name = names[i];
+        let len = 1;
+        let isUnique = false;
+        while (!isUnique && len <= name.length) {
+          let abbr = name.substring(0, len);
+          isUnique = true;
+          for (let j = 0; j < names.length; j++) {
+            if (i === j) continue;
+            if (names[j].toLowerCase().startsWith(abbr.toLowerCase())) {
+              isUnique = false;
+              break;
+            }
+          }
+          if (!isUnique) len++;
+          else result[name] = abbr;
+        }
+        if (!isUnique) result[name] = name;
+      }
+      return result;
+    },
     copyShortSummary() {
       if (this.people.length === 0) return this.addNotification("Añade personas y gastos primero.", 'info');
-      let summary = "Resumen de deudas 💸\n------------------------\n\n";
+      let summary = "💰 *Resumen de deudas - DVDr*\n";
+      if (this.isOnline) summary += `Sala: *${this.eventName}*\n`;
+      summary += "\n";
       if (this.simplifiedDebts.length > 0) {
-        summary += "Para quedar a mano:\n"; this.simplifiedDebts.forEach(debt => { summary += `• ${debt.from} ➡️ ${debt.to}:  ${this.formatAmount(debt.amount)}\n`; });
-      } else { summary += "¡Todo saldado! ✅ No hay deudas pendientes.\n"; }
-      navigator.clipboard.writeText(summary); this.addNotification('¡Resumen corto copiado!', 'success');
+        this.simplifiedDebts.forEach(debt => {
+          summary += `- *${debt.from}* ➡️ *${debt.to}*: *$${this.formatAmount(debt.amount)}*\n`;
+        });
+      } else {
+        summary += "✅ ¡Todo saldado! No hay deudas pendientes.\n";
+      }
+      summary += "\nGenerado con dvdr.vercel.app";
+      navigator.clipboard.writeText(summary);
+      this.addNotification('¡Resumen para WhatsApp copiado!', 'success');
     },
     copyDetailedSummary() {
       if (this.people.length === 0) return this.addNotification("Añade personas y gastos primero.", 'info');
-      let summary = "📊 Resumen detallado de gastos 📊\n===============================\n\n✅ ¿QUIÉN PAGA A QUIÉN?\n";
-      if (this.simplifiedDebts.length > 0) { this.simplifiedDebts.forEach(debt => { summary += `- ${debt.from} debe pagar a ${debt.to}: ${this.formatAmount(debt.amount)}\n`; }); }
-      else { summary += "- ¡Todos están a mano! No hay deudas.\n"; }
-      summary += "\n📋 LISTA DE TRANSACCIONES\n";
-      this.transactions.forEach(tx => {
-        if (tx.type === 'expense') summary += `- Gasto: ${tx.description} (${this.formatAmount(tx.amount)}) pagado por ${tx.payer}\n`;
-        if (tx.type === 'adjustment') summary += `- Ajuste: ${tx.description} (${this.formatAmount(tx.amount)}) a favor de ${tx.beneficiary}\n`;
-        if (tx.type === 'transfer') summary += `- Transferencia: ${tx.from} envió ${this.formatAmount(tx.amount)} a ${tx.to}\n`;
+      let summary = "📊 *Resumen detallado - DVDr*\n";
+      if (this.isOnline) summary += `Sala: *${this.eventName}*\n`;
+      summary += "\n🤝 *¿QUIÉN PAGA A QUIÉN?*\n";
+      if (this.simplifiedDebts.length > 0) {
+        this.simplifiedDebts.forEach(debt => {
+          summary += `- *${debt.from}* debe pagar a *${debt.to}*: *$${this.formatAmount(debt.amount)}*\n`;
+        });
+      } else {
+        summary += "- ¡Todos están a mano!\n";
+      }
+
+      const abbrs = this.getUniqueAbbreviations(this.people);
+      summary += "\n📝 *LISTA DE TRANSACCIONES*\n";
+      this.transactions.slice().reverse().forEach(tx => {
+        const amount = `*$${this.formatAmount(tx.amount)}*`;
+        if (tx.type === 'expense') {
+          const participants = tx.shares.map(s => s.person);
+          const partsStr = participants.length === this.people.length ? "Todos" : participants.map(p => abbrs[p]).join(',');
+          summary += `- *${tx.description}*: ${amount} (Pagó *${tx.payer}* | ${partsStr})\n`;
+        }
+        if (tx.type === 'adjustment') {
+          const contributors = tx.contributors;
+          const partsStr = contributors.length === this.people.length ? "Todos" : contributors.map(p => abbrs[p]).join(',');
+          summary += `- *${tx.description}*: ${amount} (Para *${tx.beneficiary}* | ${partsStr})\n`;
+        }
+        if (tx.type === 'transfer') summary += `- *${tx.from}* envió ${amount} a *${tx.to}*\n`;
       });
-      navigator.clipboard.writeText(summary); this.addNotification('¡Resumen detallado copiado!', 'success');
+      summary += "\nGenerado con dvdr.vercel.app";
+      navigator.clipboard.writeText(summary);
+      this.addNotification('¡Resumen detallado copiado!', 'success');
     },
     generateShareLink() {
       if (this.people.length === 0 && this.transactions.length === 0) return this.addNotification("Añade datos antes de compartir.", 'info');
+
+      if (this.isOnline) {
+        this.addNotification('Sugerencia: Usa el enlace de la sala (arriba) para colaboración en tiempo real.', 'info', 5000);
+      }
+
       const dataToShare = { version: this.version, people: this.people, transactions: this.transactions, history: this.history };
       const jsonStr = JSON.stringify(dataToShare);
       const base64Data = btoa(unescape(encodeURIComponent(jsonStr)));
       const url = `${window.location.origin}${window.location.pathname}#${base64Data}`;
+
       if (url.length > 2000) {
         this.addNotification('Advertencia: El enlace es muy largo y podría no funcionar en algunos servicios de mensajería.', 'warning', 5000);
       }
-      navigator.clipboard.writeText(url); this.addNotification('¡Enlace para compartir copiado!', 'success');
+
+      navigator.clipboard.writeText(url);
+      this.addNotification('¡Enlace de respaldo (snapshot) copiado!', 'success');
     },
     copyOnlineLink() {
       if (!this.eventId) return;
