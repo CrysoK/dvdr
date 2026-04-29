@@ -253,7 +253,7 @@
                 </button>
                 <button @click="isOnline ? disconnectOnline() : openOnlineModal()"
                     :style="isOnline ? 'background-color: var(--success-color); color: white;' : 'background-color: var(--card-bg); color: var(--text-color);'"
-                    :disabled="!isOnline && !$store.__dbAvailable">
+                    :disabled="!isOnline && (!$store.__dbAvailable || !isFirebaseConnected)">
                     <template x-if="!isOnline">
                         <span><svg class="icon" aria-hidden="true">
                                 <use href="#icon-user" />
@@ -981,13 +981,19 @@
             </div>
 
             <div x-show="onlineTab==='recent'" style="margin-top: 1rem;">
-                <template x-if="isLoadingRecent">
+                <template x-if="!isFirebaseConnected">
+                    <div class="error-state" style="padding: 2rem 0;">
+                        <p>Sin conexión al servidor.</p>
+                        <small>No puedes consultar salas recientes sin internet.</small>
+                    </div>
+                </template>
+                <template x-if="isFirebaseConnected && isLoadingRecent">
                     <div class="loading-state">Buscando salas disponibles...</div>
                 </template>
-                <template x-if="!isLoadingRecent && recentRoomsList.length === 0">
+                <template x-if="isFirebaseConnected && !isLoadingRecent && recentRoomsList.length === 0">
                     <div class="empty-state" style="padding: 2rem 0;">No hay salas recientes activas.</div>
                 </template>
-                <ul class="recent-rooms-list" x-show="!isLoadingRecent && recentRoomsList.length > 0">
+                <ul class="recent-rooms-list" x-show="isFirebaseConnected && !isLoadingRecent && recentRoomsList.length > 0">
                     <template x-for="room in recentRoomsList" :key="room.id">
                         <li class="recent-room-item">
                             <div class="room-info">
@@ -1036,8 +1042,8 @@
                         <input type="text" x-model="newUserName" placeholder="Ej: Carlos"
                             :required="unclaimedPeople.length === 0 || showManualName">
                     </div>
-                    <button type="submit" style="width: 100%; margin-top: 1rem;" :disabled="isJoining">
-                        <span x-text="isJoining ? 'Conectando...' : 'Entrar a la sala'"></span>
+                    <button type="submit" style="width: 100%; margin-top: 1rem;" :disabled="isJoining || !isFirebaseConnected">
+                        <span x-text="!isFirebaseConnected ? 'Sin conexión' : (isJoining ? 'Conectando...' : 'Entrar a la sala')"></span>
                     </button>
                 </div>
             </form>
@@ -1051,8 +1057,8 @@
                     <label>¿Cuál es tu nombre?</label>
                     <input type="text" x-model="newUserName" placeholder="Ej: Pedro">
                 </div>
-                <button type="submit" style="width: 100%;" class="primary" :disabled="isJoining">
-                    <span x-text="isJoining ? 'Creando...' : 'Generar y entrar'"></span>
+                <button type="submit" style="width: 100%;" class="primary" :disabled="isJoining || !isFirebaseConnected">
+                    <span x-text="!isFirebaseConnected ? 'Sin conexión' : (isJoining ? 'Creando...' : 'Generar y entrar')"></span>
                 </button>
             </form>
         </div>

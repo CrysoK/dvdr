@@ -7,7 +7,10 @@ const urlsToCache = [
   'style.css',
   'manifest.json',
   // Librerías externas
-  'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/module.esm.js',
+  'https://cdn.jsdelivr.net/npm/alpinejs@3.15.11/dist/module.esm.js',
+  'https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js',
+  'https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js',
+  'https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap',
   // Íconos
   'icons/favicon.ico',

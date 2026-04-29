@@ -1,7 +1,7 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js';
-import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js';
-import { getDatabase, ref, set, get, onValue, remove, update, onDisconnect, query, orderByChild, endAt } from 'https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js';
-import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/module.esm.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js';
+import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js';
+import { getDatabase, ref, set, get, onValue, remove, update, onDisconnect, query, orderByChild, endAt } from 'https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js';
+import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.15.11/dist/module.esm.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAkWVD_Sb2tHJeZRSvfCZCyqJHifq2jLaM",
@@ -97,7 +97,7 @@ Alpine.data('app', function () {
     newUserName: '',
     eventCreator: null,
     claimedUsers: {},
-    isFirebaseConnected: true,
+    isFirebaseConnected: false,
     confirmedAdmin: false,
     onlinePresence: {},
     eventRenames: {},
@@ -199,6 +199,7 @@ Alpine.data('app', function () {
           }
         });
       }
+
       // Mobile viewport detection
       const mq = window.matchMedia('(max-width: 991px)');
       this.isMobile = mq.matches;
@@ -488,6 +489,10 @@ Alpine.data('app', function () {
 
     async fetchRecentRooms() {
       if (!db) return;
+      if (!this.isFirebaseConnected) {
+        this.isLoadingRecent = false;
+        return;
+      }
       this.isLoadingRecent = true;
       const roomIds = Object.keys(this.lastUsers);
       const validRooms = [];
