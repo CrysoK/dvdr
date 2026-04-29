@@ -1088,7 +1088,7 @@
                 <template x-for="release in changelog.data" :key="release.tag">
                     <div class="release-item" :class="'item-' + release.type">
                         <div class="release-header">
-
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
                                 <span class="release-tag" x-text="release.tag"></span>
                                 <span class="release-badge" :class="'badge-' + release.type">
                                     <template x-if="release.type === 'major'">
