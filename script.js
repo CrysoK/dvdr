@@ -361,7 +361,7 @@ Alpine.data('app', function () {
       if (this.isOnline && !this.isAdmin) return this.addNotification('Solo el creador del evento puede limpiar la división.', 'warning');
       this.askConfirm({
         title: 'Limpiar división actual',
-        message: 'Esto borrará las personas y transacciones de la sesión actual (sin afectar al historial guardado). ¿Deseas continuar?',
+        message: 'Esto borrará las personas y transacciones de la sesión actual (sin afectar a las divisiones guardadas). ¿Deseas continuar?',
         confirmText: 'Sí, limpiar',
         confirmClass: 'warning',
         onConfirm: () => {
@@ -381,7 +381,7 @@ Alpine.data('app', function () {
       if (this.isOnline && !this.isAdmin) return this.addNotification('Solo el creador del evento puede reiniciar todos los datos.', 'warning');
       this.askConfirm({
         title: 'Reiniciar todos los datos',
-        message: '¿Seguro que quieres borrar TODOS los datos? Esto incluye personas, transacciones y el historial guardado. Esta acción no se puede deshacer.',
+        message: '¿Seguro que quieres borrar TODOS los datos? Esto incluye personas, transacciones y las divisiones guardadas. Esta acción no se puede deshacer.',
         confirmText: 'Sí, borrar todo',
         confirmClass: 'danger',
         onConfirm: () => {
@@ -853,7 +853,7 @@ Alpine.data('app', function () {
       });
     },
 
-    // --- MÉTODOS DE HISTORIAL ---
+    // --- MÉTODOS DE DIVISIONES GUARDADAS ---
     saveToHistory() {
       const name = this.newHistoryName.trim();
       if (!name) return;
@@ -862,7 +862,7 @@ Alpine.data('app', function () {
       this.history.unshift(historyItem);
       this.newHistoryName = '';
       this.saveData();
-      this.addNotification(`'${name}' guardado en el historial.`, 'success');
+      this.addNotification(`'${name}' guardado en divisiones guardadas.`, 'success');
     },
     loadFromHistory(id) {
       const item = this.history.find(h => h.id === id);
@@ -913,13 +913,13 @@ Alpine.data('app', function () {
       if (item) {
         this.askConfirm({
           title: `Eliminar '${item.name}'`,
-          message: `¿Seguro que quieres eliminar esta entrada del historial?`,
+          message: `¿Seguro que quieres eliminar esta división guardada?`,
           confirmText: 'Eliminar',
           confirmClass: 'danger',
           onConfirm: () => {
             this.history = this.history.filter(h => h.id !== id);
             this.saveData();
-            this.addNotification(`'${item.name}' eliminado del historial.`, 'success');
+            this.addNotification(`'${item.name}' eliminado de divisiones guardadas.`, 'success');
           }
         });
       }
@@ -1345,7 +1345,7 @@ Alpine.data('app', function () {
       let summary = "📊 Resumen detallado de gastos 📊\n===============================\n\n✅ ¿QUIÉN PAGA A QUIÉN?\n";
       if (this.simplifiedDebts.length > 0) { this.simplifiedDebts.forEach(debt => { summary += `- ${debt.from} debe pagar a ${debt.to}: ${this.formatAmount(debt.amount)}\n`; }); }
       else { summary += "- ¡Todos están a mano! No hay deudas.\n"; }
-      summary += "\n📋 HISTORIAL COMPLETO\n";
+      summary += "\n📋 LISTA DE TRANSACCIONES\n";
       this.transactions.forEach(tx => {
         if (tx.type === 'expense') summary += `- Gasto: ${tx.description} (${this.formatAmount(tx.amount)}) pagado por ${tx.payer}\n`;
         if (tx.type === 'adjustment') summary += `- Ajuste: ${tx.description} (${this.formatAmount(tx.amount)}) a favor de ${tx.beneficiary}\n`;

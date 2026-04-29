@@ -16,7 +16,7 @@ crear una cuenta.
   * **Transferencias:** Para registrar pagos directos entre personas.
 * **Cálculo automático:** Obtén un resumen simplificado de quién debe pagar a
   quién.
-* **Historial y persistencia:** Guarda tus divisiones para más tarde y cárgalas
+* **Divisiones guardadas y persistencia:** Guarda tus divisiones para más tarde y cárgalas
   cuando las necesites.
 * **Comparte fácilmente:** Genera un enlace único para compartir el estado
   actual de la división con otros.

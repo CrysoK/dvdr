@@ -282,7 +282,7 @@
                 style="background-color: var(--danger-color); color: white; padding: 10px; border-radius: 8px; text-align: center; grid-column: 1 / -1; margin-bottom: 0.5rem;">
                 <strong>Sin conexión al servidor</strong>. Reconectando...
             </div>
-            <!-- COLUMNA IZQUIERDA: PERSONAS, DEUDAS E HISTORIAL -->
+            <!-- COLUMNA IZQUIERDA: PERSONAS, DEUDAS Y GUARDADAS -->
             <div class="left-column">
                 <!-- SECCIÓN PERSONAS -->
                 <div class="card" x-show="!isMobile || mobileTab === 'personas'">
@@ -384,11 +384,11 @@
                     </div>
                 </div>
 
-                <!-- SECCIÓN HISTORIAL DE DIVISIONES -->
+                <!-- SECCIÓN DIVISIONES GUARDADAS -->
                 <div class="card" x-show="!isMobile || mobileTab === 'mas'">
                     <h2 class="card-header"><svg class="icon icon-header" aria-hidden="true">
                             <use href="#icon-archive" />
-                        </svg> Historial de divisiones</h2>
+                        </svg> Divisiones guardadas</h2>
                     <form @submit.prevent="saveToHistory" style="margin-bottom: 1.5rem;">
                         <div class="form-group">
                             <label for="history-name">Nombre de la división:</label>
@@ -396,7 +396,7 @@
                                 placeholder="Ej: Viaje a la playa" required>
                         </div>
                         <button type="submit" :disabled="people.length === 0"
-                            :title="isOnline ? 'Se añadirá este evento compartido permanentemente a tu historial' : ''">Guardar
+                            :title="isOnline ? 'Se añadirá este evento compartido permanentemente a tus divisiones guardadas' : ''">Guardar
                             evento actual</button>
                     </form>
                     <ul class="history-list">
