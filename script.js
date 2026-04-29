@@ -106,6 +106,8 @@ Alpine.data('app', function () {
     unclaimedPeople: [],
     showManualName: false,
     lastUsers: {},
+    recentRoomsList: [],
+    isLoadingRecent: false,
     get isAdmin() {
       if (!this.eventId || !this.isOnline) return false;
       return this.confirmedAdmin;
@@ -472,8 +474,91 @@ Alpine.data('app', function () {
     },
     // --- MÉTODOS ONLINE ---
 
-    openOnlineModal() { this.showOnlineModal = true; },
+    openOnlineModal() {
+      this.showOnlineModal = true;
+      // Si el usuario tiene historial de salas, abrimos por defecto la pestaña "Recientes"
+      if (Object.keys(this.lastUsers).length > 0) {
+        this.onlineTab = 'recent';
+        this.fetchRecentRooms();
+      } else {
+        this.onlineTab = 'join';
+      }
+    },
     closeOnlineModal() { if (!this.isOnline) this.showOnlineModal = false; },
+
+    async fetchRecentRooms() {
+      if (!db) return;
+      this.isLoadingRecent = true;
+      const roomIds = Object.keys(this.lastUsers);
+      const validRooms = [];
+      const keysToRemove = [];
+
+      try {
+        // Consultar todas las salas en paralelo
+        await Promise.all(roomIds.map(async (id) => {
+          try {
+            const snap = await get(ref(db, `events/${id}/metadata`));
+            if (snap.exists()) {
+              const meta = snap.val();
+              validRooms.push({
+                id: id,
+                name: meta.name,
+                lastActive: meta.lastActive || meta.createdAt || Date.now(),
+                isCreator: meta.creator_uid === this.uid,
+                userName: this.lastUsers[id] // El nombre que usamos en esa sala
+              });
+            } else {
+              // Si ya no existe (eliminada por el cron o manualmente), la marcamos para borrarla
+              keysToRemove.push(id);
+            }
+          } catch (e) {
+            console.warn(`No se pudo cargar la sala ${id}`);
+          }
+        }));
+
+        // Limpiar localStorage de salas eliminadas
+        if (keysToRemove.length > 0) {
+          keysToRemove.forEach(id => delete this.lastUsers[id]);
+          this.saveData();
+        }
+
+        // Ordenar temporalmente por fecha de actividad (más reciente arriba)
+        validRooms.sort((a, b) => b.lastActive - a.lastActive);
+
+        // Separar: Mostrar TODAS las propias, y máximo las últimas 5 invitadas
+        const myRooms = validRooms.filter(r => r.isCreator);
+        const otherRooms = validRooms.filter(r => !r.isCreator).slice(0, 5);
+
+        // Juntar y ordenar final
+        this.recentRoomsList = [...myRooms, ...otherRooms].sort((a, b) => b.lastActive - a.lastActive);
+      } catch (e) {
+        console.error("Error fetching recent rooms", e);
+      } finally {
+        this.isLoadingRecent = false;
+      }
+    },
+
+    formatExpiration(lastActiveTimestamp) {
+      const msInDay = 1000 * 60 * 60 * 24;
+      const msInHour = 1000 * 60 * 60;
+      const inactiveTime = Date.now() - lastActiveTimestamp;
+      const timeLeft = (7 * msInDay) - inactiveTime;
+
+      if (timeLeft <= 0) return 'Expirando...';
+
+      const daysLeft = Math.floor(timeLeft / msInDay);
+      if (daysLeft > 0) {
+        return `Expira en ${daysLeft} ${daysLeft === 1 ? 'día' : 'días'}`;
+      }
+      const hoursLeft = Math.floor(timeLeft / msInHour);
+      return `Expira en ${hoursLeft} ${hoursLeft === 1 ? 'hora' : 'horas'}`;
+    },
+
+    joinRecent(room) {
+      this.joinEventId = room.id;
+      this.newUserName = room.userName;
+      this.enterEvent();
+    },
 
     async createEvent() {
       if (this.isJoining) return;

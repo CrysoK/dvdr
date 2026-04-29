@@ -969,10 +969,38 @@
                 <button x-show="!isOnline" @click="closeOnlineModal" class="close-modal-btn">&times;</button>
             </div>
             <div class="tabs" style="margin-top: 1rem;">
+                <button class="tab-button" :class="{'active': onlineTab==='recent'}"
+                    @click="onlineTab = 'recent'; fetchRecentRooms()">Recientes</button>
                 <button class="tab-button" :class="{'active': onlineTab==='join'}"
                     @click="onlineTab = 'join'">Unirse</button>
                 <button class="tab-button" :class="{'active': onlineTab==='create'}"
                     @click="onlineTab = 'create'">Crear</button>
+            </div>
+
+            <div x-show="onlineTab==='recent'" style="margin-top: 1rem;">
+                <template x-if="isLoadingRecent">
+                    <div class="loading-state">Buscando salas disponibles...</div>
+                </template>
+                <template x-if="!isLoadingRecent && recentRoomsList.length === 0">
+                    <div class="empty-state" style="padding: 2rem 0;">No hay salas recientes activas.</div>
+                </template>
+                <ul class="recent-rooms-list" x-show="!isLoadingRecent && recentRoomsList.length > 0">
+                    <template x-for="room in recentRoomsList" :key="room.id">
+                        <li class="recent-room-item">
+                            <div class="room-info">
+                                <div style="margin-bottom: 0.3rem; line-height: 1.4;">
+                                    <strong x-text="room.name" style="color:var(--primary-color); vertical-align: middle;"></strong>
+                                    <span class="release-badge" :class="room.isCreator ? 'badge-major' : 'badge-patch'" x-text="room.isCreator ? 'Creador' : 'Invitado'" style="font-size:0.6rem; vertical-align: middle; margin-left: 0.25rem;"></span>
+                                </div>
+                                <div class="room-meta">
+                                    Código: <span x-text="room.id" style="font-family:monospace; font-weight:bold; letter-spacing:1px; color:var(--text-color);"></span><br>
+                                    <span x-text="formatExpiration(room.lastActive)"></span>
+                                </div>
+                            </div>
+                            <button class="room-join-btn" @click="joinRecent(room)">Entrar</button>
+                        </li>
+                    </template>
+                </ul>
             </div>
 
             <form x-show="onlineTab==='join'" @submit.prevent="enterEvent" style="margin-top: 1rem;">
