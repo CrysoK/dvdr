@@ -1310,15 +1310,17 @@ Alpine.data('app', function () {
     },
     formatReleaseBody(markdown) {
       if (!markdown) return '';
-      // Limpieza básica de Markdown para HTML seguro
-      let html = markdown
-        .replace(/### (.*)/g, '<strong>$1</strong>') // Headers h3
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
-        .replace(/`([^`]+)`/g, '<code>$1</code>') // Code inline
-        .replace(/- (.*)/g, '• $1') // List items
-        .replace(/\r\n/g, '<br>') // Line breaks
-        .replace(/\n/g, '<br>'); // Line breaks
-      return html;
+      const escaped = markdown
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      return escaped
+        .replace(/### (.*)/g, '<strong>$1</strong>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/- (.*)/g, '• $1')
+        .replace(/\r\n/g, '<br>')
+        .replace(/\n/g, '<br>');
     },
     getReleaseType(tag) {
       const match = tag.match(/v?(\d+)\.(\d+)(?:\.(\d+))?/);
