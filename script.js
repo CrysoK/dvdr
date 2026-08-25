@@ -124,6 +124,23 @@ Alpine.data('app', function () {
       if (!this.eventId || !this.isOnline) return false;
       return this.confirmedAdmin;
     },
+    _presenceDisplayName(key, value) {
+      if (value === true) return key;
+      if (typeof value === 'string') return value;
+      if (value && typeof value === 'object' && value.name) return value.name;
+      return null;
+    },
+    _presenceNameMap(presence) {
+      const names = {};
+      Object.entries(presence || {}).forEach(([key, value]) => {
+        const name = this._presenceDisplayName(key, value);
+        if (name) names[name] = true;
+      });
+      return names;
+    },
+    get onlineByName() {
+      return this._presenceNameMap(this.onlinePresence);
+    },
 
     people: [],
     transactions: [],
@@ -204,10 +221,10 @@ Alpine.data('app', function () {
       if (db) {
         onValue(ref(db, '.info/connected'), (snap) => {
           this.isFirebaseConnected = snap.val() === true;
-          if (this.isFirebaseConnected && this.isOnline && this.eventId && this.currentUser) {
-            const myPresenceRef = ref(db, `events/${this.eventId}/presence/${this.currentUser}`);
+          if (this.isFirebaseConnected && this.isOnline && this.eventId && this.uid && this.currentUser) {
+            const myPresenceRef = ref(db, `events/${this.eventId}/presence/${this.uid}`);
             onDisconnect(myPresenceRef).remove();
-            set(myPresenceRef, true);
+            set(myPresenceRef, this.currentUser);
           }
         });
       }
@@ -613,7 +630,8 @@ Alpine.data('app', function () {
           this.addNotification('No se pudo crear la sala. Intenta de nuevo.', 'error');
           return;
         }
-        await update(ref(db, `events/${eventId}/metadata/users`), { [userName]: true });
+        await set(ref(db, `events/${eventId}/members/${this.uid}`), { name: userName, joinedAt: Date.now() });
+        await update(ref(db, `events/${eventId}/metadata/users`), { [userName]: this.uid });
         await set(ref(db, `events/${eventId}/data/people`), { [userName]: true });
         sessionStorage.setItem('dvdr_rooms_created', String(created + 1));
         this.joinEventId = eventId;
@@ -632,6 +650,7 @@ Alpine.data('app', function () {
       this.joinEventId = this.joinEventId.trim().toUpperCase();
       this.newUserName = this.newUserName.replace(/[.#$\[\]]/g, '').trim().substring(0, 30);
       if (!this.joinEventId || !this.newUserName) return this.addNotification('Rellena nombres válidos (sin . # $ [ ])', 'warning');
+      if (!this.uid) return this.addNotification('Conectando de forma segura, intenta de nuevo...', 'warning');
       this.isJoining = true;
       const eventId = this.joinEventId;
       let userName = this.newUserName;
@@ -689,8 +708,10 @@ Alpine.data('app', function () {
             this.confirmedAdmin = false;
           }
 
+          await set(ref(db, `events/${eventId}/members/${this.uid}`), { name: userName, joinedAt: Date.now() });
+
           // Registrar usuario y limpiar renames consumidos en una sola operación
-          const userUpdates = { [userName]: true };
+          const userUpdates = { [userName]: this.uid };
           if (userName !== originalName) { userUpdates[originalName] = null; }
           await update(ref(db, `events/${eventId}/metadata/users`), userUpdates);
           if (userName !== originalName) {
@@ -706,9 +727,9 @@ Alpine.data('app', function () {
           }
 
           // Config presence
-          const myPresenceRef = ref(db, `events/${eventId}/presence/${userName}`);
+          const myPresenceRef = ref(db, `events/${eventId}/presence/${this.uid}`);
           onDisconnect(myPresenceRef).remove();
-          set(myPresenceRef, true);
+          set(myPresenceRef, userName);
 
           let initialPresenceLoaded = false;
           let presenceBuffer = { connected: [], disconnected: [] };
@@ -717,8 +738,10 @@ Alpine.data('app', function () {
           this._firebaseUnsubs.push(onValue(ref(db, `events/${eventId}/presence`), (res) => {
             const newPresence = res.exists() ? res.val() : {};
             if (initialPresenceLoaded) {
-              const connected = Object.keys(newPresence).filter(u => !this.onlinePresence[u] && u !== this.currentUser);
-              const disconnected = Object.keys(this.onlinePresence).filter(u => !newPresence[u] && u !== this.currentUser);
+              const oldNames = this._presenceNameMap(this.onlinePresence);
+              const newNames = this._presenceNameMap(newPresence);
+              const connected = Object.keys(newNames).filter(u => !oldNames[u] && u !== this.currentUser);
+              const disconnected = Object.keys(oldNames).filter(u => !newNames[u] && u !== this.currentUser);
 
               if (connected.length > 0 || disconnected.length > 0) {
                 presenceBuffer.connected.push(...connected);
@@ -786,10 +809,10 @@ Alpine.data('app', function () {
                   this.saveData();
 
                   // Reconectar la presencia con el nuevo nombre y limpiar rename consumido
-                  if (db && this.isFirebaseConnected) {
-                    const newPresenceRef = ref(db, `events/${this.eventId}/presence/${newName}`);
+                  if (db && this.isFirebaseConnected && this.uid) {
+                    const newPresenceRef = ref(db, `events/${this.eventId}/presence/${this.uid}`);
                     onDisconnect(newPresenceRef).remove();
-                    set(newPresenceRef, true);
+                    set(newPresenceRef, newName);
                     update(ref(db, `events/${this.eventId}/metadata/renames`), { [oldName]: null });
                   }
                 } else {
@@ -838,8 +861,8 @@ Alpine.data('app', function () {
     disconnectOnline(forced = false) {
       const exitLogic = () => {
         this._cleanupFirebaseListeners();
-        if (db && this.eventId && this.currentUser) {
-          remove(ref(db, `events/${this.eventId}/presence/${this.currentUser}`));
+        if (db && this.eventId && this.uid) {
+          remove(ref(db, `events/${this.eventId}/presence/${this.uid}`));
         }
         this.isOnline = false;
         this.eventId = null;
@@ -877,6 +900,7 @@ Alpine.data('app', function () {
               metadata: null,
               data: null,
               presence: null,
+              members: null,
               adminToken: null
             });
             this.disconnectOnline(true);
@@ -1038,8 +1062,17 @@ Alpine.data('app', function () {
 
           if (this.isOnline) {
             const updates = { [`data/people/${name}`]: null };
-            if (this.isAdmin && this.claimedUsers[name]) { updates[`metadata/users/${name}`] = null; }
-            if (name === this.currentUser) { updates[`metadata/users/${name}`] = null; }
+            if (this.isAdmin && this.claimedUsers[name]) {
+              const kickedUid = this.claimedUsers[name];
+              updates[`metadata/users/${name}`] = null;
+              if (typeof kickedUid === 'string') {
+                updates[`members/${kickedUid}`] = null;
+              }
+            }
+            if (name === this.currentUser) {
+              updates[`metadata/users/${name}`] = null;
+              if (this.uid) updates[`members/${this.uid}`] = null;
+            }
             removedTxs.forEach(id => { updates[`data/transactions/${id}`] = null; });
             updatedTxs.forEach(tx => { updates[`data/transactions/${tx.id}`] = tx; });
             this.updateRemote(updates);
@@ -1088,8 +1121,9 @@ Alpine.data('app', function () {
       if (this.isOnline) {
         const updates = { [`data/people/${oldName}`]: null, [`data/people/${newName}`]: true };
         if (this.claimedUsers[oldName]) {
+          const memberUid = this.claimedUsers[oldName];
           updates[`metadata/users/${oldName}`] = null;
-          updates[`metadata/users/${newName}`] = true;
+          updates[`metadata/users/${newName}`] = typeof memberUid === 'string' ? memberUid : this.uid;
           updates[`metadata/renames/${oldName}`] = newName;
         }
         updatedTxs.forEach(tx => { updates[`data/transactions/${tx.id}`] = tx; });
@@ -1102,18 +1136,10 @@ Alpine.data('app', function () {
         if (this.currentUser === oldName) {
           this.currentUser = newName;
           this.lastUsers[this.eventId] = newName;
-          if (db && this.isFirebaseConnected) {
-            const oldPresenceRef = ref(db, `events/${this.eventId}/presence/${oldName}`);
-            await onDisconnect(oldPresenceRef).cancel();
-            await remove(oldPresenceRef);
-
-            const newPresenceRef = ref(db, `events/${this.eventId}/presence/${newName}`);
-            await onDisconnect(newPresenceRef).remove();
-            set(newPresenceRef, true);
+          if (this.uid) {
+            updates[`members/${this.uid}/name`] = newName;
+            updates[`presence/${this.uid}`] = newName;
           }
-        } else if (db && this.isFirebaseConnected) {
-          // Limpiar presencia vieja del usuario renombrado
-          remove(ref(db, `events/${this.eventId}/presence/${oldName}`));
         }
 
         this.updateRemote(updates);

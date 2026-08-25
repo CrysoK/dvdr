@@ -313,13 +313,13 @@
                                         <span style="display:inline-flex; align-items:center;">
                                             <span x-text="person === currentUser ? person + ' (Tú)' : person"
                                                 :style="person === currentUser ? 'font-weight:bold; color: var(--primary-color)' : ''"></span>
-                                            <span x-show="isOnline && claimedUsers[person] && onlinePresence[person]"
+                                            <span x-show="isOnline && claimedUsers[person] && onlineByName[person]"
                                                 title="En línea"
                                                 style="display:inline-flex;align-items:center;margin-left:4px;color:var(--success-color);transform:translateY(-1px);"><svg
                                                     class="icon" style="width:14px;height:14px;" aria-hidden="true">
                                                     <use href="#icon-circle-fill" />
                                                 </svg></span>
-                                            <span x-show="isOnline && claimedUsers[person] && !onlinePresence[person]"
+                                            <span x-show="isOnline && claimedUsers[person] && !onlineByName[person]"
                                                 title="Desconectado"
                                                 style="display:inline-flex;align-items:center;margin-left:4px;color:var(--text-muted);transform:translateY(-1px);"><svg
                                                     class="icon" style="width:14px;height:14px;" aria-hidden="true">

@@ -5,10 +5,28 @@
             "$eventId": {
                 "metadata": {
                     ".read": "auth != null",
-                    ".write": "auth != null && (!data.exists() || newData.exists() || data.child('creator_uid').val() === auth.uid)",
+                    ".write": "auth != null && (!data.exists() || (newData.val() === null && data.child('creator_uid').val() === auth.uid))",
                     ".validate": "newData.hasChildren(['name', 'creator', 'createdAt', 'lastActive'])",
+                    "name": {
+                        ".write": "auth != null && root.child('events/'+$eventId+'/metadata/creator_uid').val() === auth.uid"
+                    },
+                    "creator": {
+                        ".write": "auth != null && root.child('events/'+$eventId+'/metadata/creator_uid').val() === auth.uid"
+                    },
                     "creator_uid": {
                         ".validate": "!data.exists() || data.val() === newData.val()"
+                    },
+                    "createdAt": {
+                        ".write": "auth != null && root.child('events/'+$eventId+'/metadata/creator_uid').val() === auth.uid"
+                    },
+                    "lastActive": {
+                        ".write": "auth != null && (root.child('events/'+$eventId+'/members/'+auth.uid).exists() || root.child('events/'+$eventId+'/metadata/creator_uid').val() === auth.uid)"
+                    },
+                    "users": {
+                        ".write": "auth != null && (root.child('events/'+$eventId+'/members/'+auth.uid).exists() || root.child('events/'+$eventId+'/metadata/creator_uid').val() === auth.uid)"
+                    },
+                    "renames": {
+                        ".write": "auth != null && (root.child('events/'+$eventId+'/members/'+auth.uid).exists() || root.child('events/'+$eventId+'/metadata/creator_uid').val() === auth.uid)"
                     }
                 },
                 "adminToken": {
@@ -17,11 +35,21 @@
                 },
                 "data": {
                     ".read": "auth != null",
-                    ".write": "auth != null && (!data.exists() || newData.exists() || root.child('events/'+$eventId+'/metadata/creator_uid').val() === auth.uid)"
+                    ".write": "auth != null && (root.child('events/'+$eventId+'/members/'+auth.uid).exists() || root.child('events/'+$eventId+'/metadata/creator_uid').val() === auth.uid) && (!data.exists() || newData.exists() || root.child('events/'+$eventId+'/metadata/creator_uid').val() === auth.uid)"
                 },
                 "presence": {
                     ".read": "auth != null",
-                    ".write": "auth != null"
+                    ".write": "newData.val() === null && root.child('events/'+$eventId+'/metadata/creator_uid').val() === auth.uid",
+                    "$uid": {
+                        ".write": "auth != null && auth.uid === $uid && (root.child('events/'+$eventId+'/members/'+$uid).exists() || root.child('events/'+$eventId+'/metadata/creator_uid').val() === auth.uid)"
+                    }
+                },
+                "members": {
+                    ".read": "auth != null",
+                    ".write": "newData.val() === null && root.child('events/'+$eventId+'/metadata/creator_uid').val() === auth.uid",
+                    "$uid": {
+                        ".write": "auth != null && ((auth.uid === $uid && root.child('events/'+$eventId+'/metadata').exists()) || (newData.val() === null && root.child('events/'+$eventId+'/metadata/creator_uid').val() === auth.uid))"
+                    }
                 }
             }
         }
