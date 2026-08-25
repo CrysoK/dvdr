@@ -1019,7 +1019,7 @@
             <form x-show="onlineTab==='join'" @submit.prevent="enterEvent" style="margin-top: 1rem;">
                 <div class="form-group">
                     <label>Código de la sala:</label>
-                    <input type="text" x-model="joinEventId" placeholder="Ej: ABCD12">
+                    <input type="text" x-model="joinEventId" placeholder="Ej: K7M2P9QX" maxlength="12" spellcheck="false" autocapitalize="characters" autocomplete="off">
                 </div>
 
                 <div x-show="unclaimedPeople.length > 0" class="unclaimed-container">

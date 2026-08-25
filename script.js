@@ -26,6 +26,18 @@ try {
   firebaseInitError = true;
 }
 
+const ROOM_ID_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const ROOM_ID_LENGTH = 8;
+
+function generateRoomId() {
+  const bytes = crypto.getRandomValues(new Uint8Array(ROOM_ID_LENGTH));
+  let id = '';
+  for (let i = 0; i < ROOM_ID_LENGTH; i++) {
+    id += ROOM_ID_ALPHABET[bytes[i] & 31];
+  }
+  return id;
+}
+
 Alpine.data('app', function () {
   const APP_VERSION = '2.2.0';
   const STORAGE_KEY = 'dvdr_data';
@@ -159,7 +171,7 @@ Alpine.data('app', function () {
       this.$watch('joinEventId', async (val) => {
         const id = val.trim().toUpperCase();
         this.showManualName = false;
-        if (id.length === 6 && db) {
+        if ((id.length === 6 || id.length >= ROOM_ID_LENGTH) && db) {
           try {
             const [metaSnap, peopleSnap] = await Promise.all([
               get(ref(db, `events/${id}/metadata`)),
@@ -576,12 +588,31 @@ Alpine.data('app', function () {
       // Validación extra: Esperar inicio de sesión
       if (!this.uid) return this.addNotification('Conectando de forma segura, intenta de nuevo...', 'warning');
       this.isJoining = true;
-      const eventId = Math.random().toString(36).substring(2, 8).toUpperCase();
+      const userName = this.newUserName;
       try {
-        const adminToken = Math.random().toString(36).substring(2, 15);
-        const userName = this.newUserName;
-        // Inyectamos el creator_uid de Firebase Auth
-        await set(ref(db, `events/${eventId}/metadata`), { name: this.createEventName, creator: userName, creator_uid: this.uid, createdAt: Date.now(), lastActive: Date.now() });
+        let eventId = null;
+        for (let i = 0; i < 8; i++) {
+          const candidate = generateRoomId();
+          const snap = await get(ref(db, `events/${candidate}/metadata`));
+          if (snap.exists()) continue;
+          try {
+            await set(ref(db, `events/${candidate}/metadata`), {
+              name: this.createEventName,
+              creator: userName,
+              creator_uid: this.uid,
+              createdAt: Date.now(),
+              lastActive: Date.now()
+            });
+            eventId = candidate;
+            break;
+          } catch (e) {
+            continue;
+          }
+        }
+        if (!eventId) {
+          this.addNotification('No se pudo crear la sala. Intenta de nuevo.', 'error');
+          return;
+        }
         await update(ref(db, `events/${eventId}/metadata/users`), { [userName]: true });
         await set(ref(db, `events/${eventId}/data/people`), { [userName]: true });
         sessionStorage.setItem('dvdr_rooms_created', String(created + 1));
