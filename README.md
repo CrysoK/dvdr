@@ -111,15 +111,19 @@ no actualizan `dvdr.vercel.app`.
    de esa versión tiene que estar commiteado antes del siguiente paso.
 
 2. **Cerrar la versión:**
+
    ```bash
    node scripts/release.js X.Y.Z
    ```
+
    Mueve `unreleased` a `vX.Y.Z`, y actualiza `APP_VERSION` en `script.js` y
    `CACHE_NAME` en `sw.js`.
 
 3. **Revisar el diff** y publicar:
+
    ```bash
    node scripts/release.js X.Y.Z --publish
    ```
+
    Crea el commit, pushea el tag `vX.Y.Z` y publica el GitHub Release.
    El Action `.github/workflows/release.yml` hace el deploy.

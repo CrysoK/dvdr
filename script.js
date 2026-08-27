@@ -710,10 +710,13 @@ Alpine.data('app', function () {
 
           await set(ref(db, `events/${eventId}/members/${this.uid}`), { name: userName, joinedAt: Date.now() });
 
-          // Registrar usuario y limpiar renames consumidos en una sola operación
-          const userUpdates = { [userName]: this.uid };
-          if (userName !== originalName) { userUpdates[originalName] = null; }
-          await update(ref(db, `events/${eventId}/metadata/users`), userUpdates);
+          // Registrar usuario, extender la expiración (7 días desde este acceso) y limpiar renames
+          const joinUpdates = {
+            [`metadata/users/${userName}`]: this.uid,
+            'metadata/lastActive': Date.now()
+          };
+          if (userName !== originalName) { joinUpdates[`metadata/users/${originalName}`] = null; }
+          await update(ref(db, `events/${eventId}`), joinUpdates);
           if (userName !== originalName) {
             // Limpiar todas las entradas de rename de la cadena
             const renameCleanup = {};

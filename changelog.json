@@ -1,5 +1,10 @@
 {
-  "unreleased": [],
+  "unreleased": [
+    {
+      "title": "Corrección en la caducidad de salas",
+      "body": "se resolvió un fallo por el que las salas caducaban a los 7 días aunque alguien hubiera entrado. Ahora cada acceso vuelve a extender el plazo, no solo cuando se cargan gastos."
+    }
+  ],
   "releases": [
     {
       "tag": "v2.2.1",
