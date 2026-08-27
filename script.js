@@ -1277,30 +1277,14 @@ Alpine.data('app', function () {
 
     async openChangelog() {
       this.changelog.show = true;
-      // Si ya tenemos datos en memoria, no volver a pedir
-      if (this.changelog.data.length > 0) return;
+      if (this.changelog.data.length > 0 || this.changelog.loading) return;
       this.changelog.loading = true;
       this.changelog.error = false;
       try {
-        // Intentar obtener de sessionStorage primero
-        const cached = sessionStorage.getItem('dvdr_releases');
-        if (cached) {
-          this.changelog.data = JSON.parse(cached);
-          this.changelog.loading = false;
-          return;
-        }
-        const response = await fetch('https://api.github.com/repos/CrysoK/DVDr/releases');
-        if (!response.ok) throw new Error('Error al cargar releases');
-        const data = await response.json();
-        // Formatear datos para visualización simple
-        this.changelog.data = data.map(release => ({
-          tag: release.tag_name,
-          date: new Date(release.created_at).toLocaleDateString(),
-          name: release.name || release.tag_name,
-          type: this.getReleaseType(release.tag_name),
-          body: this.formatReleaseBody(release.body)
-        }));
-        sessionStorage.setItem('dvdr_releases', JSON.stringify(this.changelog.data));
+        const response = await fetch('changelog.json');
+        if (!response.ok) throw new Error('Error al cargar el changelog');
+        const payload = await response.json();
+        this.changelog.data = payload.releases || [];
       } catch (e) {
         console.error(e);
         this.changelog.error = true;
@@ -1308,28 +1292,11 @@ Alpine.data('app', function () {
         this.changelog.loading = false;
       }
     },
-    formatReleaseBody(markdown) {
-      if (!markdown) return '';
-      const escaped = markdown
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-      return escaped
-        .replace(/### (.*)/g, '<strong>$1</strong>')
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/`([^`]+)`/g, '<code>$1</code>')
-        .replace(/- (.*)/g, '• $1')
-        .replace(/\r\n/g, '<br>')
-        .replace(/\n/g, '<br>');
-    },
-    getReleaseType(tag) {
-      const match = tag.match(/v?(\d+)\.(\d+)(?:\.(\d+))?/);
-      if (!match) return 'patch';
-      const minor = parseInt(match[2]);
-      const patch = match[3] ? parseInt(match[3]) : 0;
-      if (patch > 0) return 'patch';
-      if (minor > 0) return 'minor';
-      return 'major';
+    formatChangelogDate(isoDate) {
+      if (!isoDate) return '';
+      const [year, month, day] = isoDate.split('-').map(Number);
+      if (!year || !month || !day) return isoDate;
+      return new Date(year, month - 1, day).toLocaleDateString('es-AR');
     },
     closeChangelog() {
       this.changelog.show = false;

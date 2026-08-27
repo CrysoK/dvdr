@@ -6,6 +6,7 @@ const urlsToCache = [
   'script.js',
   'style.css',
   'manifest.json',
+  'changelog.json',
   // Librerías externas
   'https://cdn.jsdelivr.net/npm/alpinejs@3.15.11/dist/module.esm.js',
   'https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js',

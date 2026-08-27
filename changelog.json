@@ -1,0 +1,241 @@
+{
+  "unreleased": [
+    {
+      "title": "Códigos de sala más seguros",
+      "body": "al crear una sala, el código se genera de forma aleatoria criptográfica y se comprueba que no esté en uso."
+    },
+    {
+      "title": "Permisos en salas compartidas",
+      "body": "solo los miembros de la sala pueden modificar sus datos."
+    },
+    {
+      "title": "Novedades sin conexión",
+      "body": "el historial de cambios viaja con la app, así puedes consultarlo aunque no haya internet."
+    },
+    {
+      "title": "Contraste del aviso de actualización",
+      "body": "el aviso de nueva versión se lee mejor sobre el fondo de la app."
+    }
+  ],
+  "releases": [
+    {
+      "tag": "v2.2.0",
+      "date": "2026-04-29",
+      "type": "minor",
+      "items": [
+        {
+          "title": "Salas recientes",
+          "body": "se añadió una nueva pestaña en el modal colaborativo para acceder rápidamente a las últimas salas que visitaste sin necesidad de buscar el código o el enlace."
+        },
+        {
+          "title": "Selección de nombres al unirse",
+          "body": "ahora, al entrar a una sala compartida, puedes elegir tu nombre directamente de una lista de personas disponibles, evitando errores de escritura y nombres duplicados."
+        },
+        {
+          "title": "Divisiones guardadas y listas compactas",
+          "body": "se renombró el historial de divisiones para mayor claridad y se optimizaron las listas de transacciones con un diseño más compacto (scroll interno) para una mejor navegación."
+        },
+        {
+          "title": "Protección de datos y resúmenes",
+          "body": "al borrar a un participante, sus gastos se redistribuyen automáticamente entre el resto para no perder el balance. También se mejoró el formato de los resúmenes para compartir por chat."
+        },
+        {
+          "title": "Robustez offline",
+          "body": "se implementaron indicadores de \"Sin conexión\" y protecciones visuales para asegurar que la app se comporte correctamente cuando no hay internet."
+        },
+        {
+          "title": "Mejoras internas y estabilidad",
+          "body": "migración a Firebase v12.12.1 y Alpine.js v3.15.11, junto con una nueva estructura de almacenamiento local más rápida y organizada."
+        }
+      ]
+    },
+    {
+      "tag": "v2.1.2",
+      "date": "2026-04-12",
+      "type": "patch",
+      "items": [
+        {
+          "title": "Corrección en la eliminación de salas",
+          "body": "se resolvió un fallo provocado por el cambio reciente en el sistema de permisos que impedía borrar eventos de Firebase. Ahora el administrador puede eliminar salas correctamente."
+        }
+      ]
+    },
+    {
+      "tag": "v2.1.1",
+      "date": "2026-04-12",
+      "type": "patch",
+      "items": [
+        {
+          "title": "Seguridad en salas compartidas",
+          "body": "se añadió un sistema de identificación segura para el creador de cada sala, asegurando que solo la persona autorizada pueda borrar datos o gestionar la sesión."
+        },
+        {
+          "title": "Mantenimiento optimizado",
+          "body": "la limpieza de salas inactivas ahora se realiza de forma automática desde el servidor, lo que garantiza una mayor estabilidad y fluidez en el funcionamiento de la aplicación."
+        }
+      ]
+    },
+    {
+      "tag": "v2.1.0",
+      "date": "2026-04-12",
+      "type": "minor",
+      "items": [
+        {
+          "title": "Modo oscuro",
+          "body": "soporte para preferencias del sistema y cambio manual (claro / oscuro) con persistencia local."
+        },
+        {
+          "title": "Íconos SVG",
+          "body": "migración completa a un sistema de íconos basado en Lucide, reemplazando emojis y símbolos de texto para una mayor consistencia visual."
+        },
+        {
+          "title": "Rediseño del encabezado",
+          "body": "nuevo diseño horizontal optimizado para escritorio y móviles, con acceso rápido al estado de la sala y copiado de enlace."
+        },
+        {
+          "title": "Navegación móvil",
+          "body": "interfaz refinada con navegación por pestañas para una mejor experiencia en pantallas pequeñas."
+        },
+        {
+          "title": "Categorización de novedades",
+          "body": "el historial de cambios ahora incluye etiquetas para distinguir entre actualizaciones mayores, menores y correcciones."
+        },
+        {
+          "title": "Nombres insensibles a mayúsculas",
+          "body": "conexión a salas y edición de personas sin distinguir entre mayúsculas y minúsculas para evitar duplicados accidentales."
+        },
+        {
+          "title": "Robustez en renombres",
+          "body": "se solucionó un problema al reconectar si un usuario fue renombrado mientras estaba desconectado."
+        },
+        {
+          "title": "Visualización de sala",
+          "body": "se añadió el nombre del evento directamente en la interfaz principal."
+        }
+      ]
+    },
+    {
+      "tag": "v2.0.1",
+      "date": "2026-04-11",
+      "type": "patch",
+      "items": [
+        {
+          "title": "Corrección en la creación de salas online",
+          "body": "se solucionó un error que hacía que la app se quedara colgada después de crear una sala, impidiendo ingresar a ella."
+        },
+        {
+          "title": "Corrección en la eliminación de salas online",
+          "body": "se resolvió un error de permisos de Firebase que impedía borrar una sala. Ahora se eliminan los datos correctamente."
+        },
+        {
+          "body": "Mejoras menores de interfaz."
+        }
+      ]
+    },
+    {
+      "tag": "v2.0.0",
+      "date": "2026-04-11",
+      "type": "major",
+      "items": [
+        {
+          "title": "Salas colaborativas en tiempo real",
+          "body": "Creá una sala compartida e invitá a tus amigos. Todos pueden agregar personas, gastos y transferencias al mismo tiempo, y los cambios se ven al instante."
+        },
+        {
+          "title": "Invitá con un link",
+          "body": "Compartí un enlace directo para que otros se unan a tu sala con un solo clic, sin necesidad de códigos ni configuración extra."
+        },
+        {
+          "title": "Sabé quién está conectado",
+          "body": "Indicadores en vivo muestran quién está online (🟢) y quién no (⚪), con avisos cuando alguien entra o sale."
+        },
+        {
+          "title": "El creador administra la sala",
+          "body": "Quien crea la sala puede gestionar participantes, renombrar usuarios y borrar datos. Los demás pueden agregar gastos libremente."
+        },
+        {
+          "title": "Tu sesión se recuerda",
+          "body": "Si cerrás la app y volvés a abrir el enlace de la sala, DVDr te reconecta automáticamente sin pedirte el nombre de nuevo."
+        },
+        {
+          "title": "Las salas viejas se limpian solas",
+          "body": "Las salas sin actividad por más de 7 días se eliminan automáticamente."
+        },
+        {
+          "title": "Mejor manejo de nombres",
+          "body": "Ya no se pueden agregar personas con nombres duplicados (sin importar mayúsculas o minúsculas)."
+        },
+        {
+          "title": "Enlaces compartidos más robustos",
+          "body": "Los enlaces para compartir ahora funcionan correctamente con caracteres especiales como acentos o eñes. También se avisa si el enlace es demasiado largo."
+        }
+      ]
+    },
+    {
+      "tag": "v1.4.0",
+      "date": "2025-12-02",
+      "type": "minor",
+      "items": [
+        {
+          "title": "Notificaciones de actualización en tiempo real",
+          "body": "Recibe una notificación visual cuando hay una nueva versión disponible."
+        },
+        {
+          "title": "Actualización automática sin perder datos",
+          "body": "Actualiza la app con un solo clic sin perder tus datos locales."
+        },
+        {
+          "body": "Mejorado el registro y manejo del Service Worker para mejor control de actualizaciones."
+        },
+        {
+          "body": "Toast de actualización con diseño consistente con la app."
+        },
+        {
+          "body": "Mejorada la lógica de detección de actualizaciones (instaladas, esperando y encontradas durante el uso)."
+        }
+      ]
+    },
+    {
+      "tag": "v1.3.0",
+      "date": "2025-12-01",
+      "type": "minor",
+      "items": [
+        {
+          "title": "Error crítico en transferencias",
+          "body": "Se corrigió un error lógico grave donde las transferencias sumaban deuda al emisor en lugar de restarla. Ahora, cuando registras que alguien transfirió dinero a otro, los saldos se ajustan correctamente (el que paga reduce su deuda, el que cobra reduce su saldo a favor)."
+        },
+        {
+          "title": "Historial de cambios (Changelog)",
+          "body": "Se implementó un nuevo sistema que consulta las actualizaciones directamente desde GitHub."
+        },
+        {
+          "title": "Aviso automático",
+          "body": "A partir de ahora, cuando la aplicación se actualice, verás automáticamente esta pantalla con las novedades."
+        },
+        {
+          "title": "Acceso rápido",
+          "body": "Se añadió un botón de \"Novedades\" en el pie de página."
+        }
+      ]
+    },
+    {
+      "tag": "v1.2.1",
+      "date": "2025-12-01",
+      "type": "patch",
+      "items": [
+        {
+          "body": "Mejoras en la UI incluyendo nuevo logo y paleta de colores."
+        },
+        {
+          "body": "Preparativos para convertir DVDr en una PWA para uso offline."
+        },
+        {
+          "body": "Analíticas básicas mediante Cloudflare."
+        },
+        {
+          "body": "Mejoras en SEO."
+        }
+      ]
+    }
+  ]
+}

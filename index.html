@@ -1081,12 +1081,11 @@
             </div>
             <div class="modal-content-scroll">
                 <template x-if="changelog.loading">
-                    <div class="loading-state">Cargando datos de GitHub...</div>
+                    <div class="loading-state">Cargando novedades...</div>
                 </template>
                 <template x-if="changelog.error">
                     <div class="error-state">
                         <p>No se pudo cargar el historial de cambios.</p>
-                        <small>Verifica tu conexión a internet.</small>
                     </div>
                 </template>
                 <template x-for="release in changelog.data" :key="release.tag">
@@ -1104,9 +1103,15 @@
                                     <span x-text="{'major': 'MAYOR', 'minor': 'MENOR', 'patch': 'PARCHE'}[release.type]"></span>
                                 </span>
                             </div>
-                            <span class="release-date" x-text="release.date"></span>
+                            <span class="release-date" x-text="formatChangelogDate(release.date)"></span>
                         </div>
-                        <div class="release-body" x-html="release.body"></div>
+                        <ul class="release-body">
+                            <template x-for="(item, index) in release.items" :key="release.tag + '-' + index">
+                                <li>
+                                    <strong x-show="item.title" x-text="item.title ? item.title + ': ' : ''"></strong><span x-text="item.body"></span>
+                                </li>
+                            </template>
+                        </ul>
                     </div>
                 </template>
             </div>

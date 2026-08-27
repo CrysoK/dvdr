@@ -106,11 +106,6 @@
   background-color: rgba(229, 115, 115, 0.12);
 }
 
-[data-theme="dark"] .release-body code {
-  background-color: #1a2e3e;
-  color: var(--text-color);
-}
-
 [data-theme="dark"] .modal-overlay {
   background-color: rgba(0, 0, 0, 0.65);
 }
@@ -1083,14 +1078,29 @@ footer {
   font-size: 0.95em;
   line-height: 1.5;
   color: var(--text-color);
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-.release-body code {
-  background-color: #f1f3f5;
-  padding: 0.1em 0.3em;
-  border-radius: 3px;
-  font-family: monospace;
-  font-size: 0.9em;
+.release-body li {
+  position: relative;
+  padding-left: 1.1em;
+  margin-bottom: 0.5em;
+}
+
+.release-body li:last-child {
+  margin-bottom: 0;
+}
+
+.release-body li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+}
+
+.release-body strong {
+  font-weight: 700;
 }
 
 .loading-state,
