@@ -1,0 +1,98 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+concurrency:
+  group: production-release
+  cancel-in-progress: false
+
+env:
+  VERCEL_ORG_ID: team_PqUub1HeEWIRQv1uqNpNrG2g
+  VERCEL_PROJECT_ID: prj_3r9KJRb1f5Fc2SJx4iX3OQIgy0me
+  FIREBASE_PROJECT: dvdr-firebase
+
+jobs:
+  vercel:
+    name: Deploy to Vercel
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || github.sha }}
+
+      - name: Check VERCEL_TOKEN
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "Falta el secret VERCEL_TOKEN."
+            exit 1
+          fi
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@59.7.0
+
+      - name: Pull Vercel environment
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy production
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+  firebase:
+    name: Deploy Firebase rules
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || github.sha }}
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Detect rules changes
+        id: rules
+        run: |
+          PREV=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || true)
+          if [ -z "$PREV" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Sin tag anterior: se publican las reglas."
+            exit 0
+          fi
+          if git diff --quiet "$PREV" HEAD -- database.rules.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "database.rules.json no cambió desde $PREV."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "database.rules.json cambió desde $PREV."
+          fi
+
+      - name: Setup Node.js
+        if: steps.rules.outputs.changed == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Deploy Realtime Database rules
+        if: steps.rules.outputs.changed == 'true'
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
+            echo "Falta el secret FIREBASE_SERVICE_ACCOUNT."
+            exit 1
+          fi
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/firebase-sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/firebase-sa.json"
+          npx -y firebase-tools@latest deploy --only database --project "$FIREBASE_PROJECT" --non-interactive

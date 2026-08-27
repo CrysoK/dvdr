@@ -56,7 +56,7 @@ crear una cuenta.
 * **Resumen de totales:** Consultá cuánto pagó cada persona y cuánto le
   correspondía pagar.
 * **Changelog integrado:** Consultá las novedades de cada versión directamente
-  desde la app, con datos obtenidos de los releases de GitHub.
+  desde la app. Las notas viajan con la build, así también funcionan offline.
 * **Edición de transacciones:** Editá cualquier transacción existente sin
   necesidad de borrarla y volver a crearla.
 * **Confirmaciones de seguridad:** Todas las acciones destructivas requieren
@@ -100,35 +100,26 @@ Para ejecutar este proyecto localmente:
 
 ## 🚢 Lanzar una nueva versión
 
-1. **Actualizar la versión en el código:**
-   - `script.js` → `APP_VERSION` (ej: `'2.0.1'`)
-   - `sw.js` → `CACHE_NAME` (ej: `'dvdr-cache-v2.0.1'`)
+La fuente de las notas es `changelog.json`. La app lee ese archivo; el GitHub
+Release se genera a partir de la misma lista. Publicar el Release dispara
+GitHub Actions: frontend a Vercel y, si `database.rules.json` cambió, las
+reglas a Firebase. Producción solo sale de un Release; los pushes a ramas
+no actualizan `dvdr.vercel.app`.
 
-2. **Commit y push:**
+1. **Escribir las novedades** en `unreleased` de `changelog.json`
+   (`title` + `body`, en el tono que ve el usuario). El resto del trabajo
+   de esa versión tiene que estar commiteado antes del siguiente paso.
+
+2. **Cerrar la versión:**
    ```bash
-   git add .
-   git commit -m "Bump version to X.Y.Z"
-   git push
+   node scripts/release.js X.Y.Z
    ```
+   Mueve `unreleased` a `vX.Y.Z`, y actualiza `APP_VERSION` en `script.js` y
+   `CACHE_NAME` en `sw.js`.
 
-3. **Crear el tag:**
+3. **Revisar el diff** y publicar:
    ```bash
-   git tag vX.Y.Z
-   git push origin vX.Y.Z
+   node scripts/release.js X.Y.Z --publish
    ```
-
-4. **Crear el Release en GitHub:**
-   - Ir a [Releases](https://github.com/CrysoK/DVDr/releases/new)
-   - Seleccionar el tag `vX.Y.Z`
-   - Título: `vX.Y.Z`
-   - Escribir el changelog en el body (formato lista markdown)
-   - Publicar
-
-5. **Desplegar a producción en Vercel:**
-   ```bash
-   vercel --prod
-   ```
-
-> **Tip:** La app muestra las novedades al usuario directamente desde los
-> GitHub Releases, así que el body del release es lo que van a leer los
-> usuarios en la sección "Novedades".
+   Crea el commit, pushea el tag `vX.Y.Z` y publica el GitHub Release.
+   El Action `.github/workflows/release.yml` hace el deploy.
