@@ -39,7 +39,7 @@ function generateRoomId() {
 }
 
 Alpine.data('app', function () {
-  const APP_VERSION = '2.2.0';
+  const APP_VERSION = '2.2.1';
   const STORAGE_KEY = 'dvdr_data';
 
   const MIGRATIONS = {

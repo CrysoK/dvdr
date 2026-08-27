@@ -1,23 +1,29 @@
 {
-  "unreleased": [
-    {
-      "title": "Códigos de sala más seguros",
-      "body": "al crear una sala, el código se genera de forma aleatoria criptográfica y se comprueba que no esté en uso."
-    },
-    {
-      "title": "Permisos en salas compartidas",
-      "body": "solo los miembros de la sala pueden modificar sus datos."
-    },
-    {
-      "title": "Novedades sin conexión",
-      "body": "el historial de cambios viaja con la app, así puedes consultarlo aunque no haya internet."
-    },
-    {
-      "title": "Contraste del aviso de actualización",
-      "body": "el aviso de nueva versión se lee mejor sobre el fondo de la app."
-    }
-  ],
+  "unreleased": [],
   "releases": [
+    {
+      "tag": "v2.2.1",
+      "date": "2026-08-26",
+      "type": "patch",
+      "items": [
+        {
+          "title": "Códigos de sala más seguros",
+          "body": "al crear una sala, el código se genera de forma aleatoria criptográfica y se comprueba que no esté en uso."
+        },
+        {
+          "title": "Seguridad en salas compartidas",
+          "body": "se reforzó el control de escrituras para que los datos de una sala solo los puedan cambiar quienes ya están dentro."
+        },
+        {
+          "title": "Novedades sin conexión",
+          "body": "el historial de cambios viaja con la app, así puedes consultarlo aunque no haya internet."
+        },
+        {
+          "title": "Contraste del aviso de actualización",
+          "body": "el aviso de nueva versión se lee mejor sobre el fondo de la app."
+        }
+      ]
+    },
     {
       "tag": "v2.2.0",
       "date": "2026-04-29",
